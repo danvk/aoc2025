@@ -14,5 +14,5 @@ main = do
     let answer1 = sum $ map (\(a, b) -> abs (a - b)) pairs
     print answer1
     let counts = Map.fromListWith (+) (map (, 1) list2)
-    let answer2 = sum $ fmap (\x -> x * fromMaybe 0 (Map.lookup x counts)) list1
+    let answer2 = sum $ fmap (\x -> x * Map.findWithDefault 0 x counts) list1
     print answer2
