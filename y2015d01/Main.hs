@@ -7,9 +7,12 @@ readMove :: Char -> Int
 readMove '(' = 1
 readMove ')' = -1
 
+rollingSumHelp :: Num a => a -> [a] -> [a]
+rollingSumHelp _ [] = []
+rollingSumHelp tally (x:xs) = (tally+x):rollingSumHelp (x+tally) xs
+
 rollingSum :: Num a => [a] -> [a]
-rollingSum [] = []
-rollingSum (x:xs) = x:map (+ x) (rollingSum xs)
+rollingSum = rollingSumHelp 0
 
 main = do
     args <- getArgs
@@ -21,5 +24,5 @@ main = do
     -- print numbers
     let positions = rollingSum numbers
     -- print positions
-    let answer2 = fmap (+ 1) $ findIndex (< 0) positions
+    let answer2 = (+ 1) <$> findIndex (< 0) positions
     print answer2
