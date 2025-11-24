@@ -1,4 +1,4 @@
-import Data.List (sort)
+import Data.List (sort, findIndex)
 import Data.Maybe (fromMaybe)
 import qualified Data.Map.Strict as Map
 import System.Environment (getArgs)
@@ -7,6 +7,9 @@ readMove :: Char -> Int
 readMove '(' = 1
 readMove ')' = -1
 
+rollingSum :: Num a => [a] -> [a]
+rollingSum [] = []
+rollingSum (x:xs) = x:map (+ x) (rollingSum xs)
 
 main = do
     args <- getArgs
@@ -15,4 +18,8 @@ main = do
     let numbers = map readMove content
     let answer1 = sum numbers
     print answer1
-
+    -- print numbers
+    let positions = rollingSum numbers
+    -- print positions
+    let answer2 = fmap (+ 1) $ findIndex (< 0) positions
+    print answer2
