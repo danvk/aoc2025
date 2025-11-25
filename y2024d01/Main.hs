@@ -1,3 +1,8 @@
+#!/usr/bin/env cabal
+{- cabal:
+build-depends:
+  base,
+-}
 import Data.List (sort)
 import Data.Maybe (fromMaybe)
 import qualified Data.Map.Strict as Map
