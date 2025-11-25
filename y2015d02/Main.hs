@@ -9,9 +9,17 @@ parseLine line =
         [a, b, c] -> (read a, read b, read c)
     where parts = splitOn 'x' line
 
+sides :: (Int, Int, Int) -> [Int]
+sides (l, w, h) = [l*w, w*h, h*l]
+
+wrappingPaper :: (Int, Int, Int) -> Int
+wrappingPaper dims = 2 * (sum (sides dims)) + (minimum (sides dims))
+
 main = do
     args <- getArgs
     let inputFile = head args
     content <- readFile inputFile
-    let theLines = map parseLine $ lines content
-    print theLines
+    let presents = map parseLine $ lines content
+    let squareFeet = map wrappingPaper presents
+    let part1 = sum squareFeet
+    print part1
