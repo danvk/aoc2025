@@ -1,5 +1,6 @@
 -- https://adventofcode.com/2015/day/2
 import System.Environment (getArgs)
+import Data.List
 
 splitOn char text = words [if c == char then ' ' else c | c <- text]
 
@@ -13,7 +14,17 @@ sides :: (Int, Int, Int) -> [Int]
 sides (l, w, h) = [l*w, w*h, h*l]
 
 wrappingPaper :: (Int, Int, Int) -> Int
-wrappingPaper dims = 2 * (sum (sides dims)) + (minimum (sides dims))
+wrappingPaper dims = 2 * sum (sides dims) + minimum (sides dims)
+
+volume (l, w, h) = l*w*h
+
+tripleToList :: (a, a, a) -> [a]
+tripleToList (x, y, z) = [x, y, z]
+
+ribbon :: (Int, Int, Int) -> Int
+ribbon dims =
+    2*side + volume dims
+    where side = sum $ take 2 (sort $ tripleToList dims)
 
 main = do
     args <- getArgs
@@ -23,3 +34,5 @@ main = do
     let squareFeet = map wrappingPaper presents
     let part1 = sum squareFeet
     print part1
+    let part2 = sum $ map ribbon presents
+    print part2
