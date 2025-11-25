@@ -15,14 +15,12 @@ toDir c = error ("Invalid character '" ++ [c] ++ "'")
 move :: (Int, Int) -> (Int, Int) -> (Int, Int)
 move (a, b) (c, d) = (a+c, b+d)
 
-
 toPair :: Show a => [a] -> (a, a)
 toPair [x, y] = (x, y)
-toPair x = error ("was not pair " ++ (show x))
+toPair x = error ("was not pair " ++ show x)
 
 unzipList :: Show a => [a] -> ([a], [a])
 unzipList xs = toPair $ transpose $ chunksOf 2 xs
-
 
 main :: IO ()
 main = do

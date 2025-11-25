@@ -1,13 +1,8 @@
-#!/usr/bin/env cabal
-{- cabal:
-build-depends:
-  base,
--}
 import Data.List (sort)
-import Data.Maybe (fromMaybe)
 import qualified Data.Map.Strict as Map
 import System.Environment (getArgs)
 
+main :: IO ()
 main = do
     args <- getArgs
     let inputFile = head args
@@ -16,7 +11,7 @@ main = do
     let list1 = map (read . head) numbers
     let list2 = map (read . (!!1)) numbers
     let pairs = zip (sort list1) (sort list2)
-    let answer1 = sum $ map (\(a, b) -> abs (a - b)) pairs
+    let answer1 = sum $ map (\(a, b) -> abs (a - b)) pairs :: Int
     print answer1
     let counts = Map.fromListWith (+) (map (, 1) list2)
     let answer2 = sum $ fmap (\x -> x * Map.findWithDefault 0 x counts) list1

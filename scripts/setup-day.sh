@@ -13,15 +13,10 @@ mkdir -p $hs_dir
 hs_file=$hs_dir/Main.hs
 url="https://adventofcode.com/$year/day/$day"
 cat <<END > $hs_file
-#!/usr/bin/env cabal
-{- cabal:
-build-depends:
-  base,
-  split ^>=0.2.5
--}
 -- $url
 import System.Environment (getArgs)
 
+main :: IO ()
 main = do
     args <- getArgs
     let inputFile = head args
@@ -29,6 +24,13 @@ main = do
     print $ lines content
 END
 chmod +x $hs_file
+
+cat <<END >> aoc2025.cabal
+
+executable $hs_dir
+    import: warnings, common-extensions
+    main-is: $hs_file
+END
 
 # https://adventofcode.com/2024/day/3/input
 curl "https://adventofcode.com/$year/day/$day/input" \

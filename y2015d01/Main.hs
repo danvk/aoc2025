@@ -1,19 +1,15 @@
-#!/usr/bin/env cabal
-{- cabal:
-build-depends:
-  base
--}
-import Data.List (sort, findIndex)
-import Data.Maybe (fromMaybe)
-import qualified Data.Map.Strict as Map
+import Data.List (findIndex)
 import System.Environment (getArgs)
 
 readMove :: Char -> Int
 readMove '(' = 1
 readMove ')' = -1
+readMove c = error $ "Invalid input character " ++ [c]
 
+rollingSum :: [Int] -> [Int]
 rollingSum = scanl1 (+)
 
+main :: IO ()
 main = do
     args <- getArgs
     let inputFile = head args

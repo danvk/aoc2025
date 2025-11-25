@@ -1,9 +1,3 @@
-#!/usr/bin/env cabal
-{- cabal:
-build-depends:
-  base,
-  split ^>=0.2.5
--}
 -- https://adventofcode.com/2015/day/2
 import System.Environment (getArgs)
 import Data.List
@@ -13,6 +7,7 @@ parseLine :: String -> (Int, Int, Int)
 parseLine line =
     case parts of
         [a, b, c] -> (read a, read b, read c)
+        _ -> error $ "expected triple " ++ line
     where parts = splitOn "x" line
 
 sides :: (Int, Int, Int) -> [Int]
@@ -21,6 +16,7 @@ sides (l, w, h) = [l*w, w*h, h*l]
 wrappingPaper :: (Int, Int, Int) -> Int
 wrappingPaper dims = 2 * sum (sides dims) + minimum (sides dims)
 
+volume :: Num a => (a, a, a) -> a
 volume (l, w, h) = l*w*h
 
 tripleToList :: (a, a, a) -> [a]
@@ -31,6 +27,7 @@ ribbon dims =
     2*side + volume dims
     where side = sum $ take 2 (sort $ tripleToList dims)
 
+main :: IO ()
 main = do
     args <- getArgs
     let inputFile = head args
