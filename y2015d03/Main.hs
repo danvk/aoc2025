@@ -2,10 +2,14 @@
 {- cabal:
 build-depends:
   base,
-  split ^>=0.2.5
+  split ^>=0.2.5,
+  containers
 -}
+{-# LANGUAGE TupleSections #-}
+
 -- https://adventofcode.com/2015/day/3
 import System.Environment (getArgs)
+import qualified Data.Map.Strict as Map
 
 toDir :: Char -> (Int, Int)
 toDir '<' = (-1, 0)
@@ -24,4 +28,6 @@ main = do
     content <- readFile inputFile
     let dirs = map toDir (head (lines content))
     let coords = scanl move (0, 0) dirs
-    print coords
+    let counts = Map.fromListWith (+) (map (, 1) coords)
+    let part1 = Map.size counts
+    print part1
