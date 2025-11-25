@@ -53,6 +53,15 @@ extra-doc-files:    CHANGELOG.md
 common warnings
     ghc-options: -Wall
 
+common common-extensions
+    default-extensions:
+        TupleSections
+
+executable y2015d03
+    import: warnings, common-extensions
+    main-is: y2015d03/Main.hs
+    build-depends: base, containers
+
 executable aoc2025
     -- Import common warning flags.
     import:           warnings

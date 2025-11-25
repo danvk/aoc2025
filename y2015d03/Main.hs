@@ -1,12 +1,3 @@
-#!/usr/bin/env cabal
-{- cabal:
-build-depends:
-  base,
-  split ^>=0.2.5,
-  containers
--}
-{-# LANGUAGE TupleSections #-}
-
 -- https://adventofcode.com/2015/day/3
 import System.Environment (getArgs)
 import qualified Data.Map.Strict as Map
@@ -22,12 +13,13 @@ toDir c = error ("Invalid character '" ++ [c] ++ "'")
 move :: (Int, Int) -> (Int, Int) -> (Int, Int)
 move (a, b) (c, d) = (a+c, b+d)
 
+main :: IO ()
 main = do
     args <- getArgs
     let inputFile = head args
     content <- readFile inputFile
     let dirs = map toDir (head (lines content))
     let coords = scanl move (0, 0) dirs
-    let counts = Map.fromListWith (+) (map (, 1) coords)
+    let counts = Map.fromListWith (+) (map (, 1::Int) coords)
     let part1 = Map.size counts
     print part1
