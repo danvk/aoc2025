@@ -7,12 +7,7 @@ readMove :: Char -> Int
 readMove '(' = 1
 readMove ')' = -1
 
-rollingSumHelp :: Num a => a -> [a] -> [a]
-rollingSumHelp _ [] = []
-rollingSumHelp tally (x:xs) = (tally+x):rollingSumHelp (x+tally) xs
-
-rollingSum :: Num a => [a] -> [a]
-rollingSum = rollingSumHelp 0
+rollingSum = scanl1 (+)
 
 main = do
     args <- getArgs
