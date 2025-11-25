@@ -13,6 +13,12 @@ mkdir -p $hs_dir
 hs_file=$hs_dir/Main.hs
 url="https://adventofcode.com/$year/day/$day"
 cat <<END > $hs_file
+#!/usr/bin/env cabal
+{- cabal:
+build-depends:
+  base,
+  split ^>=0.2.5
+-}
 -- $url
 import System.Environment (getArgs)
 
@@ -22,6 +28,7 @@ main = do
     content <- readFile inputFile
     print $ lines content
 END
+chmod +x $hs_file
 
 # https://adventofcode.com/2024/day/3/input
 curl "https://adventofcode.com/$year/day/$day/input" \
@@ -41,7 +48,7 @@ curl "https://adventofcode.com/$year/day/$day" \
 ./scripts/extract-sample.ts /tmp/advent.html $dir
 
 echo ''
-echo "ghc $hs_file && ./$hs_dir/Main $dir/input.txt"
+echo "./$hs_file $dir/input.txt"
 echo ''
 echo "https://adventofcode.com/$year/day/$day"
 echo ''
