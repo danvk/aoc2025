@@ -1,14 +1,19 @@
+#!/usr/bin/env cabal
+{- cabal:
+build-depends:
+  base,
+  split ^>=0.2.5
+-}
 -- https://adventofcode.com/2015/day/2
 import System.Environment (getArgs)
 import Data.List
-
-splitOn char text = words [if c == char then ' ' else c | c <- text]
+import Data.List.Split
 
 parseLine :: String -> (Int, Int, Int)
 parseLine line =
     case parts of
         [a, b, c] -> (read a, read b, read c)
-    where parts = splitOn 'x' line
+    where parts = splitOn "x" line
 
 sides :: (Int, Int, Int) -> [Int]
 sides (l, w, h) = [l*w, w*h, h*l]
