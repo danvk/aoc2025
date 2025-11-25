@@ -60,7 +60,7 @@ common common-extensions
 executable y2015d03
     import: warnings, common-extensions
     main-is: y2015d03/Main.hs
-    build-depends: base, containers
+    build-depends: base, containers, split
 
 executable aoc2025
     -- Import common warning flags.
