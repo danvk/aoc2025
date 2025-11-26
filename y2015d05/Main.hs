@@ -22,6 +22,17 @@ hasSelectedSubstr str = any (`isInfixOf` str) ["ab", "cd", "pq", "xy"]
 isNice :: String -> Bool
 isNice s = hasThreeVowels s && hasTwoInRow s && not (hasSelectedSubstr s)
 
+hasDoublePair :: String -> Bool
+hasDoublePair (a:b:xs) = isInfixOf [a, b] xs || hasDoublePair (b:xs)
+hasDoublePair _ = False
+
+hasSandwich :: String -> Bool
+hasSandwich (a:b:c:xs) = a == c || hasSandwich (b:c:xs)
+hasSandwich _ = False
+
+isNice2 :: String -> Bool
+isNice2 s = hasDoublePair s && hasSandwich s
+
 main :: IO ()
 main = do
     args <- getArgs
@@ -32,3 +43,5 @@ main = do
     -- print nices
     let part1 = length $ filter isNice strs
     print part1
+    let part2 = length $ filter isNice2 strs
+    print part2
