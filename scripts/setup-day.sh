@@ -50,7 +50,7 @@ curl "https://adventofcode.com/$year/day/$day" \
 ./scripts/extract-sample.ts /tmp/advent.html $dir
 
 echo ''
-echo "./$hs_file $dir/input.txt"
+echo "cabal run $hs_dir $dir/input.txt"
 echo ''
 echo "https://adventofcode.com/$year/day/$day"
 echo ''
