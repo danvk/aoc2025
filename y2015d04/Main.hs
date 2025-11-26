@@ -19,6 +19,13 @@ is_winner salt x =
         '0':'0':'0':'0':'0':_ -> True
         _ -> False
 
+is_winner2 :: String -> Int -> Bool
+is_winner2 salt x =
+    let h = B.unpack (salted_md5 salt x)
+    in case h of
+        '0':'0':'0':'0':'0':'0':_ -> True
+        _ -> False
+
 main :: IO ()
 main = do
     args <- getArgs
@@ -28,3 +35,5 @@ main = do
     print prefix
     let part1 = head [n | n <- [1..], is_winner prefix n]
     print part1
+    let part2 = head [n | n <- [1..], is_winner2 prefix n]
+    print part2
