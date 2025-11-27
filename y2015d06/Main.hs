@@ -1,7 +1,7 @@
 -- https://adventofcode.com/2015/day/6
 import System.Environment (getArgs)
 import Data.List.Split
-import Data.Map.Strict as Map hiding (map, foldr)
+import Data.Map.Strict as Map hiding (map, foldl, foldr)
 
 toPair :: Show a => [a] -> (a, a)
 toPair [a, b] = (a, b)
@@ -34,8 +34,8 @@ mergeLight op _ = error $ "Invalid op " ++ op
 updateMap :: Ord a => Map a b -> Map a b -> Map a b
 updateMap m1 m2 = Map.union m2 m1
 
-applyOp :: (String, (Int, Int), (Int, Int)) -> Map (Int, Int) Bool -> Map (Int, Int) Bool
-applyOp (op, (x1, y1), (x2, y2)) m =
+applyOp :: Map (Int, Int) Bool -> (String, (Int, Int), (Int, Int)) -> Map (Int, Int) Bool
+applyOp  m (op, (x1, y1), (x2, y2)) =
     let rect = [(x, y) | x <- [x1..x2], y <- [y1..y2]] in
     let updates = Map.fromList $ map (\xy -> (xy, mergeLight op (Map.findWithDefault False xy m))) rect
     in updateMap m updates
@@ -49,7 +49,9 @@ main = do
     let inputFile = head args
     content <- readFile inputFile
     let commands = map parseLine $ lines content
-    let grid = foldr applyOp Map.empty commands
+    -- print commands
+    let grid = foldl applyOp Map.empty commands
+    -- print grid
     let part1 = countTrues grid
     print part1
 
