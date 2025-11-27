@@ -43,6 +43,19 @@ applyOp  m (op, (x1, y1), (x2, y2)) =
 countTrues :: Ord a => Map a Bool -> Int
 countTrues m = length [pos | (pos, v) <- Map.toList m, v]
 
+mergeLight2 :: String -> Int -> Int
+mergeLight2 "on" x = x + 1
+mergeLight2 "off" x = max 0 (x - 1)
+mergeLight2 "toggle" x = x + 2
+mergeLight2 op _ = error $ "Invalid op " ++ op
+
+-- TOOD: combine with applyOp
+applyOp2 :: Map (Int, Int) Int -> (String, (Int, Int), (Int, Int)) -> Map (Int, Int) Int
+applyOp2  m (op, (x1, y1), (x2, y2)) =
+    let rect = [(x, y) | x <- [x1..x2], y <- [y1..y2]] in
+    let updates = Map.fromList $ map (\xy -> (xy, mergeLight2 op (Map.findWithDefault 0 xy m))) rect
+    in updateMap m updates
+
 main :: IO ()
 main = do
     args <- getArgs
@@ -54,6 +67,10 @@ main = do
     -- print grid
     let part1 = countTrues grid
     print part1
+
+    let grid2 = foldl applyOp2 Map.empty commands
+    let part2 = sum (map snd (Map.toList grid2))
+    print part2
 
 
 -- (a->b) -> (b->c) -> (a->c)
