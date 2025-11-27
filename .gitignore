@@ -40,5 +40,5 @@ cabal.project.local
 # KDE
 .directory
 
-input
+input.txt
 scripts/cookie.sh
