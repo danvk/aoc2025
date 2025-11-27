@@ -1,26 +1,22 @@
 -- https://adventofcode.com/2015/day/5
 import System.Environment (getArgs)
 import Data.List
-import Data.Maybe
 
 isLongerThan :: Int -> [a] -> Bool
 isLongerThan n list = not (null (drop (n-1) list))
 
-isVowel :: Char -> Bool
-isVowel x = x `elem` "aeiou"
-
 hasThreeVowels :: String -> Bool
-hasThreeVowels str = isLongerThan 3 $ filter isVowel str
+hasThreeVowels str = isLongerThan 3 $ filter (`elem` "aeiou") str
 
 hasTwoInRow :: String -> Bool
 hasTwoInRow str = let pairs = zip str (tail str)
-    in isJust $ find (uncurry (==)) pairs
+    in any (uncurry (==)) pairs
 
 hasSelectedSubstr :: String -> Bool
 hasSelectedSubstr str = any (`isInfixOf` str) ["ab", "cd", "pq", "xy"]
 
 isNice :: String -> Bool
-isNice s = hasThreeVowels s && hasTwoInRow s && not (hasSelectedSubstr s)
+isNice = allOf [hasThreeVowels, hasTwoInRow, not . hasSelectedSubstr]
 
 hasDoublePair :: String -> Bool
 hasDoublePair (a:b:xs) = isInfixOf [a, b] xs || hasDoublePair (b:xs)
@@ -31,7 +27,10 @@ hasSandwich (a:b:c:xs) = a == c || hasSandwich (b:c:xs)
 hasSandwich _ = False
 
 isNice2 :: String -> Bool
-isNice2 s = hasDoublePair s && hasSandwich s
+isNice2 = allOf [hasDoublePair, hasSandwich]
+
+allOf :: [a -> Bool] -> a -> Bool
+allOf fns x = all (\fn -> fn x) fns
 
 main :: IO ()
 main = do
