@@ -39,12 +39,13 @@ mergeLight Toggle x = not x
 updateMap :: Ord a => Map.Map a b -> Map.Map a b -> Map.Map a b
 updateMap m1 m2 = Map.union m2 m1
 
-applyOp :: Map.Map (Int, Int) Bool -> Instruction -> Map.Map (Int, Int) Bool
-applyOp  m (Instruction op (Point x1 y1) (Point x2 y2)) =
+applyToRect :: (Command -> a -> a) -> a -> Map.Map (Int, Int) a -> Instruction -> Map.Map (Int, Int) a
+applyToRect fn base m (Instruction op (Point x1 y1) (Point x2 y2)) =
     let rect = [(x, y) | x <- [x1..x2], y <- [y1..y2]] in
-    let updates = Map.fromList $ map (\xy -> (xy, mergeLight op (Map.findWithDefault False xy m))) rect
+    let updates = Map.fromList $ map (\xy -> (xy, fn op (Map.findWithDefault base xy m))) rect
     in updateMap m updates
 
+-- TODO: probably a more idiomatic way to do this
 countTrues :: Ord a => Map.Map a Bool -> Int
 countTrues m = length [pos | (pos, v) <- Map.toList m, v]
 
@@ -53,13 +54,6 @@ mergeLight2 On x = x + 1
 mergeLight2 Off x = max 0 (x - 1)
 mergeLight2 Toggle x = x + 2
 
--- TOOD: combine with applyOp
-applyOp2 :: Map.Map (Int, Int) Int -> Instruction -> Map.Map (Int, Int) Int
-applyOp2 m (Instruction op (Point x1 y1) (Point x2 y2)) =
-    let rect = [(x, y) | x <- [x1..x2], y <- [y1..y2]] in
-    let updates = Map.fromList $ map (\xy -> (xy, mergeLight2 op (Map.findWithDefault 0 xy m))) rect
-    in updateMap m updates
-
 main :: IO ()
 main = do
     args <- getArgs
@@ -67,12 +61,12 @@ main = do
     content <- readFile inputFile
     let commands = map parseLine $ lines content
     -- print commands
-    let grid = foldl applyOp Map.empty commands
+    let grid = foldl (applyToRect mergeLight False) Map.empty commands
     -- print grid
     let part1 = countTrues grid
     print part1
 
-    let grid2 = foldl applyOp2 Map.empty commands
+    let grid2 = foldl (applyToRect mergeLight2 0) Map.empty commands
     let part2 = sum (map snd (Map.toList grid2))
     print part2
 
