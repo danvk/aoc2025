@@ -1,7 +1,7 @@
 -- https://adventofcode.com/2015/day/6
 import System.Environment (getArgs)
 import Data.List.Split
-import Data.Map.Strict as Map hiding (map, foldl, foldr)
+import qualified Data.Map.Strict as Map
 
 toPair :: Show a => [a] -> (a, a)
 toPair [a, b] = (a, b)
@@ -31,16 +31,16 @@ mergeLight "off" _ = False
 mergeLight "toggle" x = not x
 mergeLight op _ = error $ "Invalid op " ++ op
 
-updateMap :: Ord a => Map a b -> Map a b -> Map a b
+updateMap :: Ord a => Map.Map a b -> Map.Map a b -> Map.Map a b
 updateMap m1 m2 = Map.union m2 m1
 
-applyOp :: Map (Int, Int) Bool -> (String, (Int, Int), (Int, Int)) -> Map (Int, Int) Bool
+applyOp :: Map.Map (Int, Int) Bool -> (String, (Int, Int), (Int, Int)) -> Map.Map (Int, Int) Bool
 applyOp  m (op, (x1, y1), (x2, y2)) =
     let rect = [(x, y) | x <- [x1..x2], y <- [y1..y2]] in
     let updates = Map.fromList $ map (\xy -> (xy, mergeLight op (Map.findWithDefault False xy m))) rect
     in updateMap m updates
 
-countTrues :: Ord a => Map a Bool -> Int
+countTrues :: Ord a => Map.Map a Bool -> Int
 countTrues m = length [pos | (pos, v) <- Map.toList m, v]
 
 mergeLight2 :: String -> Int -> Int
@@ -50,7 +50,7 @@ mergeLight2 "toggle" x = x + 2
 mergeLight2 op _ = error $ "Invalid op " ++ op
 
 -- TOOD: combine with applyOp
-applyOp2 :: Map (Int, Int) Int -> (String, (Int, Int), (Int, Int)) -> Map (Int, Int) Int
+applyOp2 :: Map.Map (Int, Int) Int -> (String, (Int, Int), (Int, Int)) -> Map.Map (Int, Int) Int
 applyOp2  m (op, (x1, y1), (x2, y2)) =
     let rect = [(x, y) | x <- [x1..x2], y <- [y1..y2]] in
     let updates = Map.fromList $ map (\xy -> (xy, mergeLight2 op (Map.findWithDefault 0 xy m))) rect
