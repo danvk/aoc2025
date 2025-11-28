@@ -45,9 +45,8 @@ applyToRect fn base m (Instruction op (Point x1 y1) (Point x2 y2)) =
     let updates = Map.fromList $ map (\xy -> (xy, fn op (Map.findWithDefault base xy m))) rect
     in updateMap m updates
 
--- TODO: probably a more idiomatic way to do this
 countTrues :: Ord a => Map.Map a Bool -> Int
-countTrues m = length [pos | (pos, v) <- Map.toList m, v]
+countTrues = length . filter id . Map.elems
 
 mergeLight2 :: Command -> Int -> Int
 mergeLight2 On x = x + 1
