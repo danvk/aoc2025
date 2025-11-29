@@ -40,17 +40,43 @@ indexInstructions :: [Instruction] -> Map.Map String LHS
 indexInstructions instrs = Map.fromList [(out, lhs) | Instruction lhs out <- instrs ]
 
 getRegister :: Map.Map String LHS -> String -> Int
-getRegister  m reg = case Map.lookup reg m of
-    Just cmd -> case cmd of
-        (Constant x) -> x
-        (ConstantReg r) -> getRegister m r
-        (And x y) -> getRegister m x .&. getRegister m y
-        (AndConst x y) -> x .&. getRegister m y
-        (Or x y) -> getRegister m x .|. getRegister m y
-        (Not x) -> 65535 - getRegister m x
-        (LShift r n) -> shiftL (getRegister m r) n
-        (RShift r n) -> shiftR (getRegister m r) n
-    Nothing -> error $ "Missing register " ++ reg
+getRegister m reg = fst (go Map.empty reg)
+  where
+    go cache r = case Map.lookup r cache of
+      Just val -> (val, cache)
+      Nothing -> case Map.lookup r m of
+        Just cmd -> case cmd of
+          (Constant x) -> (x, Map.insert r x cache)
+          (ConstantReg r') ->
+            let (val, cache') = go cache r'
+            in (val, Map.insert r val cache')
+          (And x y) ->
+            let (val1, cache1) = go cache x
+                (val2, cache2) = go cache1 y
+                val = val1 .&. val2
+            in (val, Map.insert r val cache2)
+          (AndConst x y) ->
+            let (val, cache') = go cache y
+                result = x .&. val
+            in (result, Map.insert r result cache')
+          (Or x y) ->
+            let (val1, cache1) = go cache x
+                (val2, cache2) = go cache1 y
+                val = val1 .|. val2
+            in (val, Map.insert r val cache2)
+          (Not x) ->
+            let (val, cache') = go cache x
+                result = 65535 - val
+            in (result, Map.insert r result cache')
+          (LShift x n) ->
+            let (val, cache') = go cache x
+                result = shiftL val n
+            in (result, Map.insert r result cache')
+          (RShift x n) ->
+            let (val, cache') = go cache x
+                result = shiftR val n
+            in (result, Map.insert r result cache')
+        Nothing -> error $ "Missing register " ++ r
 
 
 main :: IO ()
