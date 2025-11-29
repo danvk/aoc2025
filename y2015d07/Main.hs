@@ -1,16 +1,19 @@
 -- https://adventofcode.com/2015/day/7
 import System.Environment (getArgs)
 import qualified Data.Map.Strict as Map
-import Data.Bits ((.&.), (.|.), complement, shiftL, shiftR)
+import Data.Bits ((.&.), (.|.), shiftL, shiftR)
+import Text.Read (readMaybe)
 
-data Instruction = Instruction LHS String
+data Instruction = Instruction LHS String deriving (Show)
 data LHS =
     Constant Int
+    | ConstantReg String
     | And String String
+    | AndConst Int String
     | LShift String Int
     | Not String
     | Or String String
-    | RShift String Int
+    | RShift String Int deriving (Show)
 
 -- 123 -> x
 -- x AND y -> d
@@ -21,33 +24,41 @@ data LHS =
 
 parseLine :: String -> Instruction
 parseLine str = case words str of
-    [num, "->", out] -> Instruction (Constant $ read num) out
-    [x, "AND", y, "->", out] -> Instruction (And x y) out
+    [input, "->", out] -> case readMaybe input of
+        Just num -> Instruction (Constant num) out
+        Nothing -> Instruction (ConstantReg input) out
+    [input1, "AND", y, "->", out] -> case readMaybe input1 of
+        Just x -> Instruction (AndConst x y) out
+        Nothing -> Instruction (And input1 y) out
     [x, "OR", y, "->", out] -> Instruction (Or x y) out
     [x, "LSHIFT", y, "->", out] -> Instruction (LShift x (read y)) out
     [x, "RSHIFT", y, "->", out] -> Instruction (RShift x (read y)) out
     ["NOT", x, "->", out] -> Instruction (Not x ) out
     _ -> error $ "Invalid line: " ++ str
 
-type RegMap = Map.Map String Int
+indexInstructions :: [Instruction] -> Map.Map String LHS
+indexInstructions instrs = Map.fromList [(out, lhs) | Instruction lhs out <- instrs ]
 
-runInstr :: RegMap -> LHS -> Int
-runInstr _ (Constant x) = x
-runInstr m (And x y) = (m Map.! x) .&. (m Map.! y)
-runInstr m (Or x y) = (m Map.! x) .|. (m Map.! y)
-runInstr m (Not x) = complement (m Map.! x)
-runInstr m (LShift r n) = shiftL (m Map.! r) n
-runInstr m (RShift r n) = shiftR (m Map.! r) n
+getRegister :: Map.Map String LHS -> String -> Int
+getRegister  m reg = case Map.lookup reg m of
+    Just cmd -> case cmd of
+        (Constant x) -> x
+        (ConstantReg r) -> getRegister m r
+        (And x y) -> getRegister m x .&. getRegister m y
+        (AndConst x y) -> x .&. getRegister m y
+        (Or x y) -> getRegister m x .|. getRegister m y
+        (Not x) -> 65535 - getRegister m x
+        (LShift r n) -> shiftL (getRegister m r) n
+        (RShift r n) -> shiftR (getRegister m r) n
+    Nothing -> error $ "Missing register " ++ reg
 
-applyInstr :: RegMap -> Instruction -> RegMap
-applyInstr m (Instruction lhs out) = Map.insert out (runInstr m lhs) m
 
 main :: IO ()
 main = do
     args <- getArgs
-    let inputFile = head args
+    let [inputFile, register] = args
     content <- readFile inputFile
     let instrs = map parseLine $ lines content
-        registers = foldl applyInstr Map.empty instrs
-    -- print registers
-    print $ registers Map.! "a"
+        instrMap = indexInstructions instrs
+    print $ Map.toList instrMap
+    print $ getRegister instrMap register
