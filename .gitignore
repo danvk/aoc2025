@@ -41,4 +41,5 @@ cabal.project.local
 .directory
 
 input.txt
+input2.txt
 scripts/cookie.sh
