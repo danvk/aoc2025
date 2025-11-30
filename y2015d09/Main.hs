@@ -30,6 +30,15 @@ stepOne (_, [], _) = error "empty path"
 step :: [(Int, [String], [Trip])] -> [(Int, [String], [Trip])]
 step trips = trips >>= stepOne
 
+fst3 :: (a, b, c) -> a
+fst3 (x, _, _) = x
+
+minUsing :: Ord b => (a->b) -> [a] -> a
+minUsing fn = minimumBy (compare `on` fn)
+
+maxUsing :: Ord b => (a->b) -> [a] -> a
+maxUsing fn = maximumBy (compare `on` fn)
+
 main :: IO ()
 main = do
     args <- getArgs
@@ -44,7 +53,7 @@ main = do
     -- print $ removeCity trips "London"
     -- print $ nextStops "Dublin" trips
     let circuits = iterate step starts !! (length cities - 1)
-        minCircuit = minimumBy (compare `on` (\(d, _, _) -> d)) circuits
-        maxCircuit = maximumBy (compare `on` (\(d, _, _) -> d)) circuits
+        minCircuit = minUsing fst3 circuits
+        maxCircuit = maxUsing fst3 circuits
     print minCircuit
     print maxCircuit
