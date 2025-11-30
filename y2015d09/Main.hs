@@ -45,4 +45,6 @@ main = do
     -- print $ nextStops "Dublin" trips
     let circuits = iterate step starts !! (length cities - 1)
         minCircuit = minimumBy (compare `on` (\(d, _, _) -> d)) circuits
+        maxCircuit = maximumBy (compare `on` (\(d, _, _) -> d)) circuits
     print minCircuit
+    print maxCircuit
