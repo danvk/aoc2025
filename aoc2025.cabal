@@ -104,3 +104,7 @@ executable y2015d09
 executable y2015d10
     import: warnings, common-extensions
     main-is: y2015d10/Main.hs
+
+executable y2015d11
+    import: warnings, common-extensions
+    main-is: y2015d11/Main.hs
