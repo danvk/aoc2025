@@ -92,3 +92,7 @@ executable y2015d06
 executable y2015d07
     import: warnings, common-extensions
     main-is: y2015d07/Main.hs
+
+executable y2015d08
+    import: warnings, common-extensions
+    main-is: y2015d08/Main.hs
