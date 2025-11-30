@@ -2,7 +2,6 @@
 import System.Environment (getArgs)
 import Data.Aeson
 import qualified Data.Aeson.KeyMap as KM
-import qualified Data.Aeson.Key as K
 import qualified Data.Vector as V
 import qualified Data.ByteString.Lazy as BL (ByteString, fromStrict)
 import Data.Text.Encoding (encodeUtf8)
@@ -21,7 +20,9 @@ sumJson (Array a) = sum $ map sumJson $ V.toList a
 sumJson _ = 0
 
 sumJsonNoRed :: Value -> Int
-sumJsonNoRed (Object o) = if K.fromString "red" `KM.member` o then 0 else sum $ map sumJsonNoRed $ KM.elems o
+sumJsonNoRed (Object o) =
+    let vals = KM.elems o in
+    if String (T.pack "red") `elem` vals then 0 else sum $ map sumJsonNoRed vals
 sumJsonNoRed (Number n) = case toBoundedInteger n of
     Just i -> i
     Nothing -> error "Bad number"
