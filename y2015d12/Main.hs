@@ -2,6 +2,7 @@
 import System.Environment (getArgs)
 import Data.Aeson
 import qualified Data.Aeson.KeyMap as KM
+import qualified Data.Aeson.Key as K
 import qualified Data.Vector as V
 import qualified Data.ByteString.Lazy as BL (ByteString, fromStrict)
 import Data.Text.Encoding (encodeUtf8)
@@ -19,14 +20,25 @@ sumJson (Number n) = case toBoundedInteger n of
 sumJson (Array a) = sum $ map sumJson $ V.toList a
 sumJson _ = 0
 
+sumJsonNoRed :: Value -> Int
+sumJsonNoRed (Object o) = if K.fromString "red" `KM.member` o then 0 else sum $ map sumJsonNoRed $ KM.elems o
+sumJsonNoRed (Number n) = case toBoundedInteger n of
+    Just i -> i
+    Nothing -> error "Bad number"
+sumJsonNoRed (Array a) = sum $ map sumJsonNoRed $ V.toList a
+sumJsonNoRed _ = 0
+
 
 main :: IO ()
 main = do
     args <- getArgs
     let inputFile = head args
     content <- readFile inputFile
-    let val = decode $ strictByteString content :: Maybe Value
-        part1 = case val of
+    let maybeVal = decode $ strictByteString content :: Maybe Value
+        val = case maybeVal of
             Nothing -> error "Could not parse"
-            Just v -> sumJson v
+            Just v -> v
+        part1 = sumJson val
+        part2 = sumJsonNoRed val
     print part1
+    print part2
