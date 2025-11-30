@@ -4,6 +4,7 @@ import Data.List
 
 lookAndSay :: [Int] -> [Int]
 lookAndSay xs = group xs >>= \x -> [length x, head x]
+-- lookAndSay = concatMap (sequenceA [length, head]) . group
 
 main :: IO ()
 main = do
