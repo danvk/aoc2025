@@ -36,5 +36,4 @@ main :: IO ()
 main = do
     args <- getArgs
     let initPass = head args
-        part1 = head $ filter isValid $ iterate nextPass initPass
-    print part1
+    print $ take 2 $ filter isValid $ iterate nextPass initPass
