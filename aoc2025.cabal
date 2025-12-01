@@ -60,6 +60,12 @@ common common-extensions
     default-language: GHC2021
     build-depends: base, containers, split
 
+library circuit
+    import: warnings, common-extensions
+    exposed-modules: Circuit
+    hs-source-dirs: lib
+    build-depends: base, containers, split
+
 executable y2015d03
     import: warnings, common-extensions
     main-is: y2015d03/Main.hs
@@ -121,3 +127,4 @@ executable y2025d01
 executable y2015d13
     import: warnings, common-extensions
     main-is: y2015d13/Main.hs
+    build-depends: circuit
