@@ -1,30 +1,26 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 -- https://adventofcode.com/2015/day/12
 import System.Environment (getArgs)
 import Data.Aeson
 import qualified Data.Aeson.KeyMap as KM
 import qualified Data.Vector as V
 import qualified Data.ByteString.Lazy as B
-import Data.Text as T (pack)
 import Data.Scientific
 
-sumJson :: Value -> Int
+sumJson :: Value -> Scientific
 sumJson (Object o) = sum $ map sumJson $ KM.elems o
-sumJson (Number n) = case toBoundedInteger n of
-    Just i -> i
-    Nothing -> error "Bad number"
+sumJson (Number n) = n
 sumJson (Array a) = sum $ map sumJson $ V.toList a
 sumJson _ = 0
 
-sumJsonNoRed :: Value -> Int
-sumJsonNoRed (Object o) =
-    let vals = KM.elems o in
-    if String (T.pack "red") `elem` vals then 0 else sum $ map sumJsonNoRed vals
-sumJsonNoRed (Number n) = case toBoundedInteger n of
-    Just i -> i
-    Nothing -> error "Bad number"
+sumJsonNoRed :: Value -> Scientific
+sumJsonNoRed (Object o)
+    | String "red" `elem` o = 0
+    | otherwise = sum $ map sumJsonNoRed $ KM.elems o
+sumJsonNoRed (Number n) = n
 sumJsonNoRed (Array a) = sum $ map sumJsonNoRed $ V.toList a
 sumJsonNoRed _ = 0
-
 
 main :: IO ()
 main = do
