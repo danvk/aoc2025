@@ -60,11 +60,17 @@ common common-extensions
     default-language: GHC2021
     build-depends: base, containers, split
 
+library aoclib
+    import: warnings, common-extensions
+    exposed-modules: AocLib
+    hs-source-dirs: lib
+    build-depends: base, containers, split
+
 library circuit
     import: warnings, common-extensions
     exposed-modules: Circuit
     hs-source-dirs: lib
-    build-depends: base, containers, split
+    build-depends: base, containers, split, aoclib
 
 executable y2015d03
     import: warnings, common-extensions
@@ -106,6 +112,7 @@ executable y2015d08
 executable y2015d09
     import: warnings, common-extensions
     main-is: y2015d09/Main.hs
+    build-depends: circuit
 
 executable y2015d10
     import: warnings, common-extensions
@@ -127,4 +134,5 @@ executable y2025d01
 executable y2015d13
     import: warnings, common-extensions
     main-is: y2015d13/Main.hs
-    build-depends: circuit
+    other-modules: AocLib
+    build-depends: aoclib, circuit

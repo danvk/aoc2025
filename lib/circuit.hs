@@ -1,6 +1,6 @@
-module Circuit (findMinCircuit, findMaxCircuit, Triple) where
+module Circuit (findCircuits, findMinCircuit, findMaxCircuit, Triple) where
 
-import Data.Function
+import AocLib
 import Data.List
 import Data.Map qualified as M
 import Data.Maybe
@@ -29,12 +29,6 @@ stepOne (_, [], _) = error "empty path"
 
 step :: [(Int, [String], [Triple])] -> [(Int, [String], [Triple])]
 step trips = trips >>= stepOne
-
-minUsing :: (Ord b) => (a -> b) -> [a] -> a
-minUsing fn = minimumBy (compare `on` fn)
-
-maxUsing :: (Ord b) => (a -> b) -> [a] -> a
-maxUsing fn = maximumBy (compare `on` fn)
 
 -- Add the score for the last pair to complete the circle
 completeCircuit :: M.Map (String, String) Int -> (Int, [String]) -> (Int, [String])
