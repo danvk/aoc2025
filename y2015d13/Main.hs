@@ -65,21 +65,22 @@ completeCircuit ds (d, path) = (d + d', path)
   where
     d' = ds M.! (head path, last path)
 
+findMinCircuit :: [Pair] -> (Int, [String])
+findMinCircuit rawPairs =
+  let pairs = sumPairs rawPairs
+   in let costMap = M.fromList $ map (\(a, b, d) -> ((a, b), d)) pairs
+       in let people = nub $ map fst3 pairs
+           in let person1 = head people
+               in let starts = [(0, [person1], pairs)]
+                   in let openCircuits = map first2 $ iterate step starts !! (length people - 1)
+                       in let circuits = map (completeCircuit costMap) openCircuits
+                           in maxUsing fst circuits
+
 main :: IO ()
 main = do
   args <- getArgs
   let inputFile = head args
   content <- readFile inputFile
   let rawPairs = map parseLine $ lines content
-      pairs = sumPairs rawPairs
-      costMap = M.fromList $ map (\(a, b, d) -> ((a, b), d)) pairs
-      people = nub $ map fst3 pairs
-      person1 = head people
-      starts = [(0, [person1], pairs)]
-      openCircuits = map first2 $ iterate step starts !! (length people - 1)
-      circuits = map (completeCircuit costMap) openCircuits
-      maxCircuit = maxUsing fst circuits
-  print pairs
-  print people
-  print starts
-  print maxCircuit
+      part1 = findMinCircuit rawPairs
+  print part1
