@@ -65,17 +65,19 @@ completeCircuit ds (d, path) = (d + d', path)
   where
     d' = ds M.! (head path, last path)
 
-findMinCircuit :: [Pair] -> (Int, [String])
-findMinCircuit rawPairs = maxUsing fst circuits
+-- bool = does the circuit need to be closed?
+findMinCircuit :: [Pair] -> Bool -> (Int, [String])
+findMinCircuit rawPairs isClosed = maxUsing fst circuits
   where
     pairs = sumPairs rawPairs
     costMap = M.fromList [((a, b), d) | (a, b, d) <- pairs]
     people = nub (map fst3 pairs)
     person1 = head people
-    starts = [(0, [person1], pairs)]
+    -- all starts are equivalent in a closed loop, but not in an open one
+    starts = if isClosed then [(0, [person1], pairs)] else map (\c -> (0, [c], pairs)) people
     steps = iterate step starts !! (length people - 1)
     openCircuits = map first2 steps
-    circuits = map (completeCircuit costMap) openCircuits
+    circuits = if isClosed then map (completeCircuit costMap) openCircuits else openCircuits
 
 main :: IO ()
 main = do
@@ -83,10 +85,7 @@ main = do
   let inputFile = head args
   content <- readFile inputFile
   let rawPairs = map parseLine $ lines content
-      part1 = findMinCircuit rawPairs
+      part1 = findMinCircuit rawPairs True
+      part2 = findMinCircuit rawPairs False
   print part1
-  let people = nub (map fst3 rawPairs)
-      rawPairs2 = rawPairs ++ (people >>= (\p -> [(p, "me", 0), ("me", p, 0)]))
-      part2 = findMinCircuit rawPairs2
-  print people
   print part2
