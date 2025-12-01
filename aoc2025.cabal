@@ -63,13 +63,13 @@ common common-extensions
 library aoclib
     import: warnings, common-extensions
     exposed-modules: AocLib
-    hs-source-dirs: lib
+    hs-source-dirs: lib/aoclib
     build-depends: base, containers, split
 
 library circuit
     import: warnings, common-extensions
     exposed-modules: Circuit
-    hs-source-dirs: lib
+    hs-source-dirs: lib/circuit
     build-depends: base, containers, split, aoclib
 
 executable y2015d03
@@ -134,5 +134,4 @@ executable y2025d01
 executable y2015d13
     import: warnings, common-extensions
     main-is: y2015d13/Main.hs
-    other-modules: AocLib
-    build-depends: aoclib, circuit
+    build-depends: circuit
