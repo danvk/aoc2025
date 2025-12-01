@@ -112,7 +112,7 @@ executable y2015d08
 executable y2015d09
     import: warnings, common-extensions
     main-is: y2015d09/Main.hs
-    build-depends: circuit
+    build-depends: aoclib, circuit
 
 executable y2015d10
     import: warnings, common-extensions

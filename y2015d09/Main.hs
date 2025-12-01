@@ -1,5 +1,6 @@
 -- https://adventofcode.com/2015/day/9
 
+import AocLib
 import Circuit
 import System.Environment (getArgs)
 
