@@ -1,4 +1,4 @@
-module Circuit (findMinCircuit, Triple) where
+module Circuit (findMinCircuit, findMaxCircuit, Triple) where
 
 import Data.Function
 import Data.List
@@ -9,17 +9,6 @@ type Triple = (String, String, Int)
 
 first2 :: (a, b, c) -> (a, b)
 first2 (a, b, _) = (a, b)
-
--- Sum (A, B, d1) and (B, A, d2) -> (A, B, d1+d2)
-sumTriples :: [Triple] -> [Triple]
-sumTriples pairs =
-  let expanded = (pairs >>= (\p@(a, b, d) -> [p, (b, a, d)]))
-   in let sorted = sort expanded
-       in let grouped = groupBy (\a b -> first2 a == first2 b) sorted
-           in map sumBoth grouped
-  where
-    sumBoth [(a, b, d), (_, _, d')] = (a, b, d + d')
-    sumBoth _ = error "sumBoth: unexpected grouping"
 
 removeCity :: [Triple] -> String -> [Triple]
 removeCity trips city = filter (not . matchesCity) trips
@@ -41,9 +30,6 @@ stepOne (_, [], _) = error "empty path"
 step :: [(Int, [String], [Triple])] -> [(Int, [String], [Triple])]
 step trips = trips >>= stepOne
 
-fst3 :: (a, b, c) -> a
-fst3 (x, _, _) = x
-
 minUsing :: (Ord b) => (a -> b) -> [a] -> a
 minUsing fn = minimumBy (compare `on` fn)
 
@@ -56,16 +42,21 @@ completeCircuit ds (d, path) = (d + d', path)
   where
     d' = ds M.! (head path, last path)
 
--- bool = does the circuit need to be closed?
-findMinCircuit :: [Triple] -> Bool -> (Int, [String])
-findMinCircuit rawTriples isClosed = maxUsing fst circuits
+findCircuits :: [Triple] -> Bool -> [(Int, [String])]
+findCircuits pairs isClosed = if isClosed then map (completeCircuit costMap) openCircuits else openCircuits
   where
-    pairs = sumTriples rawTriples
     costMap = M.fromList [((a, b), d) | (a, b, d) <- pairs]
-    people = nub (map fst3 pairs)
+    people = nub $ map (\(x, _, _) -> x) pairs
     person1 = head people
     -- all starts are equivalent in a closed loop, but not in an open one
     starts = if isClosed then [(0, [person1], pairs)] else map (\c -> (0, [c], pairs)) people
     steps = iterate step starts !! (length people - 1)
     openCircuits = map first2 steps
-    circuits = if isClosed then map (completeCircuit costMap) openCircuits else openCircuits
+
+-- The Bool = does the circuit need to be closed?
+findMaxCircuit :: [Triple] -> Bool -> (Int, [String])
+findMaxCircuit = (maxUsing fst .) . findCircuits
+
+findMinCircuit :: [Triple] -> Bool -> (Int, [String])
+findMinCircuit = (minUsing fst .) . findCircuits
+-- ^ why the extra "." after fst?
