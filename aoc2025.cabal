@@ -113,3 +113,7 @@ executable y2015d12
     import: warnings, common-extensions
     main-is: y2015d12/Main.hs
     build-depends: aeson, text, bytestring, scientific, vector
+
+executable y2025d01
+    import: warnings, common-extensions
+    main-is: y2025d01/Main.hs
