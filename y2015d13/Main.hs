@@ -85,3 +85,8 @@ main = do
   let rawPairs = map parseLine $ lines content
       part1 = findMinCircuit rawPairs
   print part1
+  let people = nub (map fst3 rawPairs)
+      rawPairs2 = rawPairs ++ (people >>= (\p -> [(p, "me", 0), ("me", p, 0)]))
+      part2 = findMinCircuit rawPairs2
+  print people
+  print part2
