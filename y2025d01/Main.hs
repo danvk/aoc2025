@@ -9,8 +9,8 @@ parseLine line = error $ "Invalid line " ++ line
 turn :: Int -> Int -> Int
 turn a b = (a + b) `mod` 100
 
-clicks :: Int -> Int -> Int
-clicks a b = length $ filter ((==) 0 . (`mod` 100)) (if a < b then [(a + 1) .. b] else [(a - 1), (a - 2) .. b])
+byOnes :: Int -> [Int]
+byOnes x = replicate (abs x) (if x < 0 then -1 else 1)
 
 main :: IO ()
 main = do
@@ -20,7 +20,7 @@ main = do
   let rotations = map parseLine $ lines content
       positions = scanl turn 50 rotations
       part1 = length $ filter (== 0) positions
-      abspos = scanl (+) 50 rotations
-      part2 = sum $ zipWith clicks abspos (tail abspos)
+      rot1s = rotations >>= byOnes
+      part2 = length $ filter (== 0) $ scanl turn 50 rot1s
   print part1
   print part2
