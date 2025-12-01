@@ -66,15 +66,16 @@ completeCircuit ds (d, path) = (d + d', path)
     d' = ds M.! (head path, last path)
 
 findMinCircuit :: [Pair] -> (Int, [String])
-findMinCircuit rawPairs =
-  let pairs = sumPairs rawPairs
-   in let costMap = M.fromList $ map (\(a, b, d) -> ((a, b), d)) pairs
-       in let people = nub $ map fst3 pairs
-           in let person1 = head people
-               in let starts = [(0, [person1], pairs)]
-                   in let openCircuits = map first2 $ iterate step starts !! (length people - 1)
-                       in let circuits = map (completeCircuit costMap) openCircuits
-                           in maxUsing fst circuits
+findMinCircuit rawPairs = maxUsing fst circuits
+  where
+    pairs = sumPairs rawPairs
+    costMap = M.fromList [((a, b), d) | (a, b, d) <- pairs]
+    people = nub (map fst3 pairs)
+    person1 = head people
+    starts = [(0, [person1], pairs)]
+    steps = iterate step starts !! (length people - 1)
+    openCircuits = map first2 steps
+    circuits = map (completeCircuit costMap) openCircuits
 
 main :: IO ()
 main = do
