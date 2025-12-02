@@ -3,14 +3,13 @@
 import Data.List.Split
 import System.Environment (getArgs)
 
-toPair :: (Show a) => [a] -> (a, a)
-toPair [a, b] = (a, b)
-toPair x = error $ "Expected two elements, got " ++ show x
-
 parseRanges :: String -> [(Int, Int)]
 parseRanges txt = map parseRange $ splitOn "," txt
   where
-    parseRange r = toPair $ map read $ splitOn "-" r
+    parseRange s = (l, h)
+      where
+        -- or: read @Int <$> splitOn "-" s
+        [l, h] = map (read @Int) $ splitOn "-" s
 
 isInvalidNumber :: Int -> Bool
 isInvalidNumber num = left == right
