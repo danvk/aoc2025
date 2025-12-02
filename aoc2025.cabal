@@ -140,3 +140,7 @@ executable y2025d02
     import: warnings, common-extensions
     main-is: y2025d02/Main.hs
     build-depends: split
+
+executable y2015d14
+    import: warnings, common-extensions
+    main-is: y2015d14/Main.hs
