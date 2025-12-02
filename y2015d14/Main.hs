@@ -1,4 +1,7 @@
 -- https://adventofcode.com/2015/day/14
+
+import AocLib
+import Data.Map qualified as Map
 import System.Environment (getArgs)
 
 -- This introduces name, speed, flySecs, restSecs functions
@@ -25,6 +28,9 @@ locationAt t r = v * flySecs r * numIntervals + v * thisInterval
     numIntervals = t `div` interval
     thisInterval = min (flySecs r) (t `mod` interval)
 
+leaderAt :: [Reindeer] -> Int -> Reindeer
+leaderAt rs t = maxUsing (locationAt t) rs
+
 main :: IO ()
 main = do
   args <- getArgs
@@ -33,7 +39,10 @@ main = do
   let reindeer = map parseLine $ lines content
       names = map name reindeer
       part1 = maximum (map (locationAt 2503) reindeer)
+      points2 = Map.fromListWith (+) $ map ((,1 :: Int) . name . leaderAt reindeer) [1 .. 2503]
+      part2 = maximum $ Map.elems points2
   print reindeer
   print $ zip names (map (locationAt 1000) reindeer)
   print $ zip names (map (locationAt 2503) reindeer)
   print part1
+  print part2

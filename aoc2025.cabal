@@ -144,3 +144,4 @@ executable y2025d02
 executable y2015d14
     import: warnings, common-extensions
     main-is: y2015d14/Main.hs
+    build-depends: aoclib
