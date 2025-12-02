@@ -21,9 +21,16 @@ amounts 1 k = [[k]]
 amounts n 0 = replicate n [0]
 amounts n k = [0 .. k] >>= (\i -> map (i :) (amounts (n - 1) (k - i)))
 
+-- mix all the ingredients
+mix :: [[Int]] -> [Int] -> [Int]
+mix ingredients tsps = map sum $ transpose $ zipWith (\ings tsp -> map (* tsp) ings) ingredients tsps
+
 -- ingredients -> amounts -> score
 score1 :: [[Int]] -> [Int] -> Int
-score1 ingredients tsps = product $ map (max 0) $ tail $ map sum $ transpose $ zipWith (\ings tsp -> map (* tsp) ings) ingredients tsps
+score1 ingredients tsps = product $ map (max 0) $ tail $ mix ingredients tsps
+
+hasCalories :: Int -> [[Int]] -> [Int] -> Bool
+hasCalories n ingredients tsps = head (mix ingredients tsps) == n
 
 main :: IO ()
 main = do
@@ -32,6 +39,9 @@ main = do
   content <- readFile inputFile
   let namedIngredients = map parseLine $ lines content
       ingredients = map snd namedIngredients
-      part1 = maximum $ map (\tsps -> (score1 ingredients tsps, tsps)) $ amounts (length ingredients) 100
+      recipes = amounts (length ingredients) 100
+      part1 = maximum $ map (\tsps -> (score1 ingredients tsps, tsps)) recipes
+      part2 = maximum $ map (\tsps -> (score1 ingredients tsps, tsps)) $ filter (hasCalories 500 ingredients) recipes
   print ingredients
   print part1
+  print part2
