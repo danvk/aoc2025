@@ -22,6 +22,21 @@ target =
       ("perfumes", 1)
     ]
 
+target2 :: M.Map String (Integer -> Bool)
+target2 =
+  M.fromList
+    [ ("children", (== 3)),
+      ("samoyeds", (== 2)),
+      ("akitas", (== 0)),
+      ("vizslas", (== 0)),
+      ("cars", (== 2)),
+      ("perfumes", (== 1)),
+      ("cats", (> 7)),
+      ("trees", (> 3)),
+      ("goldfish", (< 5)),
+      ("pomeranians", (< 3))
+    ]
+
 loudRead :: (Read a) => String -> a
 loudRead s = case readMaybe s of
   Just x -> x
@@ -43,6 +58,9 @@ parseSue str = case words (eraseChars ":," str) of
 isValidSue :: Compounds -> Bool
 isValidSue compounds = and [target M.! key == count | (key, count) <- M.toList compounds]
 
+isValidSue2 :: Compounds -> Bool
+isValidSue2 compounds = and [(target2 M.! key) count | (key, count) <- M.toList compounds]
+
 main :: IO ()
 main = do
   args <- getArgs
@@ -50,5 +68,6 @@ main = do
   content <- readFile inputFile
   let sues = map parseSue $ lines content
       part1 = filter (isValidSue . snd) sues
-  print $ take 10 sues
+      part2 = filter (isValidSue2 . snd) sues
   print part1
+  print part2
