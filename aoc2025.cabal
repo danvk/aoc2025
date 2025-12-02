@@ -145,3 +145,7 @@ executable y2015d14
     import: warnings, common-extensions
     main-is: y2015d14/Main.hs
     build-depends: aoclib
+
+executable y2015d15
+    import: warnings, common-extensions
+    main-is: y2015d15/Main.hs
