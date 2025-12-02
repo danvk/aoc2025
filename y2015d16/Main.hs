@@ -5,7 +5,9 @@ import Data.Map qualified as M
 import System.Environment (getArgs)
 import Text.Read
 
-target :: M.Map String Integer
+type Compounds = M.Map String Integer
+
+target :: Compounds
 target =
   M.fromList
     [ ("children", 3),
@@ -29,7 +31,7 @@ eraseChars :: String -> String -> String
 eraseChars elim = filter (not . (`elem` elim))
 
 -- Sue 1: children: 1, cars: 8, vizslas: 7
-parseSue :: String -> (Int, M.Map String Integer)
+parseSue :: String -> (Int, Compounds)
 parseSue str = case words (eraseChars ":," str) of
   "Sue" : n : compounds -> (read n, readMap compounds)
   _ -> error $ "Invalid Sue " ++ str
@@ -38,10 +40,15 @@ parseSue str = case words (eraseChars ":," str) of
     readPair x = error $ "expected pair: " ++ show x
     readMap s = M.fromList $ map readPair $ chunksOf 2 s
 
+isValidSue :: Compounds -> Bool
+isValidSue compounds = and [target M.! key == count | (key, count) <- M.toList compounds]
+
 main :: IO ()
 main = do
   args <- getArgs
   let inputFile = head args
   content <- readFile inputFile
-  let x = map parseSue $ lines content
-  print $ take 10 x
+  let sues = map parseSue $ lines content
+      part1 = filter (isValidSue . snd) sues
+  print $ take 10 sues
+  print part1
