@@ -32,6 +32,9 @@ score1 ingredients tsps = product $ map (max 0) $ tail $ mix ingredients tsps
 hasCalories :: Int -> [[Int]] -> [Int] -> Bool
 hasCalories n ingredients tsps = head (mix ingredients tsps) == n
 
+pairWith :: (a -> b) -> a -> (b, a)
+pairWith fn a = (fn a, a)
+
 main :: IO ()
 main = do
   args <- getArgs
@@ -40,8 +43,9 @@ main = do
   let namedIngredients = map parseLine $ lines content
       ingredients = map snd namedIngredients
       recipes = amounts (length ingredients) 100
-      part1 = maximum $ map (\tsps -> (score1 ingredients tsps, tsps)) recipes
-      part2 = maximum $ map (\tsps -> (score1 ingredients tsps, tsps)) $ filter (hasCalories 500 ingredients) recipes
+      recipes2 = filter (hasCalories 500 ingredients) recipes
+      part1 = maximum $ map (pairWith (score1 ingredients)) recipes
+      part2 = maximum $ map (pairWith (score1 ingredients)) recipes2
   print ingredients
   print part1
   print part2
