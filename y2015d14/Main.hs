@@ -1,6 +1,7 @@
 -- https://adventofcode.com/2015/day/14
 import System.Environment (getArgs)
 
+-- This introduces name, speed, flySecs, restSecs functions
 data Reindeer = Reindeer
   { name :: String,
     speed :: Int,
@@ -16,10 +17,23 @@ parseLine str = case words str of
     Reindeer {name = name, speed = read speed, flySecs = read flySecs, restSecs = read restSecs}
   _ -> error $ "Unable to parse " ++ str
 
+locationAt :: Int -> Reindeer -> Int
+locationAt t r = v * flySecs r * numIntervals + v * thisInterval
+  where
+    v = speed r
+    interval = flySecs r + restSecs r
+    numIntervals = t `div` interval
+    thisInterval = min (flySecs r) (t `mod` interval)
+
 main :: IO ()
 main = do
   args <- getArgs
   let inputFile = head args
   content <- readFile inputFile
-  let x = map parseLine $ lines content
-  print x
+  let reindeer = map parseLine $ lines content
+      names = map name reindeer
+      part1 = maximum (map (locationAt 2503) reindeer)
+  print reindeer
+  print $ zip names (map (locationAt 1000) reindeer)
+  print $ zip names (map (locationAt 2503) reindeer)
+  print part1
