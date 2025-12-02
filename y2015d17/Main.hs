@@ -16,7 +16,11 @@ main = do
       target = (read @Int) (args !! 1)
   content <- readFile inputFile
   let nums = map (read @Int) $ lines content
-      part1 = length $ waysToSum target nums
+      combos = waysToSum target nums
+      part1 = length combos
+      fewest = minimum $ map length combos
+      part2 = length $ filter ((==) fewest . length) combos
   print nums
   print target
   print part1
+  print part2
