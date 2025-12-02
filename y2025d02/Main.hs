@@ -23,9 +23,7 @@ isInvalid2 num = any testN [1 .. (len `div` 2)]
   where
     str = show num
     len = length str
-    testN n = str == concat (replicate (len `div` n) stem)
-      where
-        stem = take n str
+    testN n = str == concat (replicate (len `div` n) (take n str))
 
 main :: IO ()
 main = do
