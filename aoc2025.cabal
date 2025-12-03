@@ -157,3 +157,7 @@ executable y2015d16
 executable y2015d17
     import: warnings, common-extensions
     main-is: y2015d17/Main.hs
+
+executable y2025d03
+    import: warnings, common-extensions
+    main-is: y2025d03/Main.hs
