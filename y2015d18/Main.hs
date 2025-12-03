@@ -54,6 +54,20 @@ step dims@(w, h) g =
         y <- [0 .. (h - 1)]
     ]
 
+jamCorners :: Size -> Grid -> Grid
+jamCorners (w, h) g =
+  M.fromList
+    ( M.toList g
+        ++ [ ((0, 0), True),
+             ((w - 1, 0), True),
+             ((0, h - 1), True),
+             ((w - 1, h - 1), True)
+           ]
+    )
+
+step2 :: Size -> Grid -> Grid
+step2 dims g = jamCorners dims (step dims g)
+
 numAlive :: Grid -> Int
 numAlive g = length $ filter id $ M.elems g
 
@@ -65,4 +79,7 @@ main = do
   let (dims, initState) = parseGrid content
       counts = map numAlive $ iterate (step dims) initState
       part1 = counts !! 100
+      counts2 = map numAlive $ iterate (step2 dims) (jamCorners dims initState)
+      part2 = counts2 !! 100
   print part1
+  print part2
