@@ -11,10 +11,7 @@ choose 0 [] = [[]]
 choose 0 _ = []
 choose _ [] = []
 choose 1 xs = [[x] | x <- xs]
-choose n lst@(x : xs)
-  | n < length lst = []
-  | n == length lst = [xs]
-  | otherwise = takeIt ++ dontTakeIt
+choose n (x : xs) = takeIt ++ dontTakeIt
   where
     takeIt = map (x :) $ choose (n - 1) xs
     dontTakeIt = choose n xs
@@ -24,10 +21,15 @@ max1 xs = maximum $ map sum2 $ choose 2 xs
   where
     sum2 [a, b] = 10 * a + b
 
-max2 :: [Int] -> Int
-max2 xs = maximum $ map sum12 $ choose 12 xs
+chooseWithMax :: Int -> [Int] -> [Int]
+chooseWithMax 0 _ = []
+chooseWithMax n xs = best : chooseWithMax (n - 1) rest
   where
-    sum12 = foldl1 (\acc x -> 10 * acc + x)
+    best = maximum $ take (length xs - n + 1) xs
+    (_, _ : rest) = break (== best) xs
+
+max2 :: [Int] -> Int
+max2 xs = foldl1 (\acc x -> 10 * acc + x) $ chooseWithMax 12 xs
 
 main :: IO ()
 main = do
