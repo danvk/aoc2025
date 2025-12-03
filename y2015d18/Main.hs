@@ -23,11 +23,46 @@ gridToStr (w, h) g = intercalate "\n" $ map rowToStr [0 .. (h - 1)]
   where
     rowToStr y = [if M.findWithDefault False (x, y) g then '#' else '.' | x <- [0 .. (w - 1)]]
 
+neighbors :: Size -> Point -> [Point]
+neighbors (w, h) (x, y) =
+  [ (x', y')
+    | x' <- [x - 1 .. x + 1],
+      x' >= 0,
+      x' < w,
+      y' <- [y - 1 .. y + 1],
+      y' >= 0,
+      y' < h,
+      (x', y') /= (x, y)
+  ]
+
+numNeighbors :: Size -> Grid -> Point -> Int
+numNeighbors dims g pt = sum $ map (\n -> if M.findWithDefault False n g then 1 else 0) (neighbors dims pt)
+
+nextState :: Bool -> Int -> Bool
+nextState True 2 = True
+nextState True 3 = True
+nextState False 3 = True
+nextState _ _ = False
+
+step :: Size -> Grid -> Grid
+step dims@(w, h) g =
+  M.fromList
+    [ ( (x, y),
+        nextState (M.findWithDefault False (x, y) g) (numNeighbors dims g (x, y))
+      )
+      | x <- [0 .. (w - 1)],
+        y <- [0 .. (h - 1)]
+    ]
+
+numAlive :: Grid -> Int
+numAlive g = length $ filter id $ M.elems g
+
 main :: IO ()
 main = do
   args <- getArgs
   let inputFile = head args
   content <- readFile inputFile
   let (dims, initState) = parseGrid content
-  print dims
-  putStrLn $ gridToStr dims initState
+      counts = map numAlive $ iterate (step dims) initState
+      part1 = counts !! 100
+  print part1
