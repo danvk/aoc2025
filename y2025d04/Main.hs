@@ -38,15 +38,30 @@ neighbors (w, h) (x, y) =
 numNeighbors :: Size -> Grid -> Point -> Int
 numNeighbors dims g pt = sum $ map (\n -> if M.findWithDefault '.' n g == '@' then 1 else 0) (neighbors dims pt)
 
+canBeAccessed :: Size -> Grid -> Point -> Bool
+canBeAccessed dims g (x, y) =
+  M.findWithDefault '.' (x, y) g == '@'
+    && numNeighbors dims g (x, y) < 4
+
 count1 :: Size -> Grid -> Int
 count1 dims@(w, h) g =
   length
     [ True
       | x <- [0 .. w - 1],
         y <- [0 .. h - 1],
-        M.findWithDefault '.' (x, y) g == '@'
-          && numNeighbors dims g (x, y) < 4
+        canBeAccessed dims g (x, y)
     ]
+
+step :: Size -> Grid -> Grid
+step dims@(w, h) g =
+  M.fromList
+    [ ((x, y), if M.findWithDefault '.' (x, y) g == '@' && not (canBeAccessed dims g (x, y)) then '@' else '.')
+      | x <- [0 .. w - 1],
+        y <- [0 .. h - 1]
+    ]
+
+numRolls :: Grid -> Int
+numRolls g = length $ filter id $ map (== '@') $ M.elems g
 
 main :: IO ()
 main = do
@@ -54,5 +69,15 @@ main = do
   let inputFile = head args
   content <- readFile inputFile
   let (dims, initState) = parseGrid content
+      initCount = numRolls initState
   -- putStr $ gridToStr dims initState
   print $ count1 dims initState
+  let states = iterate (step dims) initState
+      state100 = states !! 100
+      state101 = states !! 101
+  print $ numRolls state100
+  -- putStrLn $ gridToStr dims state100
+  putStrLn "---"
+  print $ numRolls state101
+  -- putStrLn $ gridToStr dims state101
+  print (initCount - numRolls state101)
