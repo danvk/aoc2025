@@ -103,22 +103,6 @@ print(steps_to_target({'SiAlYSiAl'}, targets))
 print(steps_to_target({'FYCaPTiBCaSiThCaSiThPMg'}, targets))
 print(steps_to_target({'TiBSiThCaCaSiThCaF'}, targets))
 
-# TODO: need to unique these by shortest path
-shorts = step(normals)
-# shorts2 = step(shorts)
-# shorts3 = step(shorts2)
-# shorts4 = step(shorts3)
-# shorts5 = step(shorts4)
-
-
-for lhs, rhs in normals + shorts:  # + shorts2 + shorts3 + shorts4 + shorts5:
-    easyforces.append((f'Rn{lhs}Ar', f'Rn{rhs}Ar'))
-    easyforces.append((f'Y{lhs}Ar', f'Y{rhs}Ar'))
-    easyforces.append((f'Rn{lhs}Y', f'Rn{rhs}Y'))
-    easyforces.append((f'Y{lhs}Y', f'Y{rhs}Y'))
-
-assert ('RnFAr', 'RnPMgAr') in easyforces
-
 
 num = 0
 while True:
@@ -137,6 +121,18 @@ while True:
     #     is_match = True
     #     num += 1
     #     print('  (regex)')
+    if not is_match:
+        start, stop = find_leaf(molecule)
+        # molecule[start:stop] = Rn..Ar
+        inner = molecule[start+2:stop-2]
+        steps = steps_to_target({inner}, targets)
+        num += (len(steps) - 1)
+        print('  inner steps', len(steps) - 1, steps)
+        # print('    ', molecule)
+        molecule = molecule[:start+2] + steps[-1] + molecule[stop-2:]
+        # print('  ->', molecule)
+        is_match = True
+
     if not is_match:
         break
 
