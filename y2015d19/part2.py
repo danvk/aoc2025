@@ -139,6 +139,7 @@ while True:
                 steps = steps_to_target({inner}, {'F', 'Mg'})
                 num += (len(steps) - 1)
                 print('  inner steps', len(steps) - 1, steps)
+                print(f'  {len(parse_molecule(inner))} -> {len(steps) - 1} steps')
                 # print('    ', molecule)
                 molecule = molecule[:start+2] + steps[-1] + molecule[stop:]
                 # print('  ->', molecule)
@@ -149,6 +150,7 @@ while True:
             steps = steps_to_target({inner}, targets)
             num += (len(steps) - 1)
             print('  inner steps', len(steps) - 1, steps)
+            print(f'  {len(parse_molecule(inner))} -> {len(steps) - 1} steps')
             # print('    ', molecule)
             molecule = molecule[:start+2] + steps[-1] + molecule[stop-2:]
             # print('  ->', molecule)
