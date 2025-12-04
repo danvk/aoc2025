@@ -8,7 +8,7 @@ charAtPoint :: Grid -> Point -> Char
 charAtPoint g pt = M.findWithDefault '.' pt g
 
 numNeighbors :: Size -> Grid -> Point -> Int
-numNeighbors dims g pt = length $ filter (\n -> charAtPoint g n == '#') (neighbors dims pt)
+numNeighbors dims g pt = length $ filter ((== '#') . charAtPoint g) (neighbors dims pt)
 
 nextState :: Char -> Int -> Char
 nextState '#' 2 = '#'
