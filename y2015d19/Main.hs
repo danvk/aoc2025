@@ -1,10 +1,11 @@
 -- https://adventofcode.com/2015/day/19
 {-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 
+import AocLib
 import Data.Char
 import Data.List
 import Data.List.Split
-import Data.Map qualified as M
+import Data.Map.Strict qualified as M
 import System.Environment (getArgs)
 
 parseReplacement :: String -> (String, [String])
@@ -33,6 +34,9 @@ applyReplacement repMap (x : xs) =
     -- TODO: dedupe this clause
     else map (x :) $ applyReplacement repMap xs
 
+step :: M.Map String [[String]] -> [[String]] -> [[String]]
+step repMap molecules = nub $ concatMap (applyReplacement repMap) molecules
+
 main :: IO ()
 main = do
   args <- getArgs
@@ -43,7 +47,14 @@ main = do
       [replacementStrs, [inputMoleculeStr]] = splitted
       replacements = indexReplacements $ map parseReplacement replacementStrs
       inputMolecule = parseMolecule inputMoleculeStr
-      part1 = length $ nub $ applyReplacement replacements inputMolecule
+      part1 = length $ step replacements [inputMolecule]
   print replacements
   print inputMolecule
   print part1
+
+  let initState = [["e"]]
+      states = take 7 $ iterate (step replacements) initState
+      longest = maxUsing length (last states)
+  print $ map length states
+  print longest
+  print $ length longest
