@@ -1,54 +1,26 @@
 -- https://adventofcode.com/2015/day/18
 
-import Data.List
 import Data.Map qualified as M
+import Grid
 import System.Environment (getArgs)
 
-type Point = (Int, Int)
-
-type Size = (Int, Int)
-
-type Grid = M.Map Point Bool
-
-parseGrid :: String -> (Size, Grid)
-parseGrid str = ((w, h), grid)
-  where
-    rows = lines str
-    h = length rows
-    w = length $ head rows
-    grid = M.fromList [((x, y), c == '#') | (y, row) <- zip [0 ..] rows, (x, c) <- zip [0 ..] row]
-
-gridToStr :: Size -> Grid -> String
-gridToStr (w, h) g = intercalate "\n" $ map rowToStr [0 .. (h - 1)]
-  where
-    rowToStr y = [if M.findWithDefault False (x, y) g then '#' else '.' | x <- [0 .. (w - 1)]]
-
-neighbors :: Size -> Point -> [Point]
-neighbors (w, h) (x, y) =
-  [ (x', y')
-    | x' <- [x - 1 .. x + 1],
-      x' >= 0,
-      x' < w,
-      y' <- [y - 1 .. y + 1],
-      y' >= 0,
-      y' < h,
-      (x', y') /= (x, y)
-  ]
+charAtPoint :: Grid -> Point -> Char
+charAtPoint g pt = M.findWithDefault '.' pt g
 
 numNeighbors :: Size -> Grid -> Point -> Int
-numNeighbors dims g pt = sum $ map (\n -> if M.findWithDefault False n g then 1 else 0) (neighbors dims pt)
+numNeighbors dims g pt = length $ filter (\n -> charAtPoint g n == '#') (neighbors dims pt)
 
-nextState :: Bool -> Int -> Bool
-nextState True 2 = True
-nextState True 3 = True
-nextState False 3 = True
-nextState _ _ = False
+nextState :: Char -> Int -> Char
+nextState '#' 2 = '#'
+nextState '#' 3 = '#'
+nextState '.' 3 = '#'
+nextState _ _ = '.'
 
 step :: Size -> Grid -> Grid
 step dims@(w, h) g =
   M.fromList
     [ ( (x, y),
-        nextState (M.findWithDefault False (x, y) g) (numNeighbors dims g (x, y))
+        nextState (charAtPoint g (x, y)) (numNeighbors dims g (x, y))
       )
       | x <- [0 .. (w - 1)],
         y <- [0 .. (h - 1)]
@@ -58,10 +30,10 @@ jamCorners :: Size -> Grid -> Grid
 jamCorners (w, h) g =
   M.fromList
     ( M.toList g
-        ++ [ ((0, 0), True),
-             ((w - 1, 0), True),
-             ((0, h - 1), True),
-             ((w - 1, h - 1), True)
+        ++ [ ((0, 0), '#'),
+             ((w - 1, 0), '#'),
+             ((0, h - 1), '#'),
+             ((w - 1, h - 1), '#')
            ]
     )
 
@@ -69,7 +41,7 @@ step2 :: Size -> Grid -> Grid
 step2 dims g = jamCorners dims (step dims g)
 
 numAlive :: Grid -> Int
-numAlive g = length $ filter id $ M.elems g
+numAlive g = length $ filter (== '#') $ M.elems g
 
 main :: IO ()
 main = do

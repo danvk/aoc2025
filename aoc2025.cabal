@@ -72,6 +72,12 @@ library circuit
     hs-source-dirs: lib/circuit
     build-depends: base, containers, split, aoclib
 
+library grid
+    import: warnings, common-extensions
+    exposed-modules: Grid
+    hs-source-dirs: lib/grid
+    build-depends: base
+
 executable y2015d03
     import: warnings, common-extensions
     main-is: y2015d03/Main.hs
@@ -165,6 +171,7 @@ executable y2025d03
 executable y2015d18
     import: warnings, common-extensions
     main-is: y2015d18/Main.hs
+    build-depends: grid
 
 executable y2015d19
     import: warnings, common-extensions
@@ -173,3 +180,4 @@ executable y2015d19
 executable y2025d04
     import: warnings, common-extensions
     main-is: y2025d04/Main.hs
+    build-depends: grid
