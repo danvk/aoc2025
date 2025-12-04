@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import re
 
 lines = [x.strip() for x in open('input/2015/day19/input.txt').readlines()]
 molecule = lines[-1]
@@ -41,19 +42,24 @@ def apply_replacement(molecule: list[str]):
     return out + replaceIt
 
 
-shorts = []
-for atom in atoms:
-    if atom == 'e':
-        continue
-    all_ones = repMap[atom]
-    for one in all_ones:
-        for two in apply_replacement(one):
-            shorts.append((atom, ''.join(two)))
-
-print(shorts)
+def step(reps: list[str, str]) -> list[str, str]:
+    out = list[str, str]()
+    for lhs, rhs in reps:
+        mol = parse_molecule(rhs)
+        for next in apply_replacement(mol):
+            out.append((lhs, ''.join(next)))
+    return out
 
 
-for lhs, rhs in normals + shorts:
+# TODO: need to unique these by shortest path
+shorts = step(normals)
+shorts2 = step(shorts)
+shorts3 = step(shorts2)
+shorts4 = step(shorts3)
+shorts5 = step(shorts4)
+
+
+for lhs, rhs in normals + shorts + shorts2 + shorts3 + shorts4 + shorts5:
     easyforces.append((f'Rn{lhs}Ar', f'Rn{rhs}Ar'))
     easyforces.append((f'Y{lhs}Ar', f'Y{rhs}Ar'))
     easyforces.append((f'Rn{lhs}Y', f'Rn{rhs}Y'))
@@ -72,6 +78,13 @@ while True:
             is_match = True
             num += 1
             molecule = molecule.replace(rhs, lhs, 1)
+    start = molecule
+    molecule = re.sub(r'Ti(Ti)+Ti', 'TiTi', molecule)
+    molecule = re.sub(r'Ca(Ca)+Ca', 'CaCa', molecule)
+    if molecule != start:
+        is_match = True
+        num += 1
+        print('  (regex)')
     if not is_match:
         break
 
