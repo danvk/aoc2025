@@ -23,6 +23,9 @@ gridToStr (w, h) g = intercalate "\n" $ map rowToStr [0 .. (h - 1)]
   where
     rowToStr y = [M.findWithDefault '.' (x, y) g | x <- [0 .. (w - 1)]]
 
+charAtPoint :: Grid -> Point -> Char
+charAtPoint g pt = M.findWithDefault '.' pt g
+
 neighbors :: Size -> Point -> [Point]
 neighbors (w, h) (x, y) =
   [ (x', y')
@@ -36,32 +39,30 @@ neighbors (w, h) (x, y) =
   ]
 
 numNeighbors :: Size -> Grid -> Point -> Int
-numNeighbors dims g pt = sum $ map (\n -> if M.findWithDefault '.' n g == '@' then 1 else 0) (neighbors dims pt)
-
-canBeAccessed :: Size -> Grid -> Point -> Bool
-canBeAccessed dims g (x, y) =
-  M.findWithDefault '.' (x, y) g == '@'
-    && numNeighbors dims g (x, y) < 4
-
-count1 :: Size -> Grid -> Int
-count1 dims@(w, h) g =
-  length
-    [ True
-      | x <- [0 .. w - 1],
-        y <- [0 .. h - 1],
-        canBeAccessed dims g (x, y)
-    ]
+numNeighbors dims g pt = length $ filter (\n -> charAtPoint g n == '@') (neighbors dims pt)
 
 step :: Size -> Grid -> Grid
 step dims@(w, h) g =
   M.fromList
-    [ ((x, y), if M.findWithDefault '.' (x, y) g == '@' && not (canBeAccessed dims g (x, y)) then '@' else '.')
+    [ ((x, y), if isInaccessibleRoll (x, y) then '@' else '.')
       | x <- [0 .. w - 1],
         y <- [0 .. h - 1]
     ]
+  where
+    isInaccessibleRoll pt = charAtPoint g pt == '@' && numNeighbors dims g pt >= 4
 
 numRolls :: Grid -> Int
 numRolls g = length $ filter id $ map (== '@') $ M.elems g
+
+-- Iterate until another function stops changing
+iterateUntilStall :: (Eq b) => (a -> a) -> (a -> b) -> a -> (Int, b, a)
+iterateUntilStall stepFn stallFn initState = (n, stallVal, state)
+  where
+    states = iterate stepFn initState
+    tuples = zip (map stallFn states) $ zip [0 ..] states
+    (stallVal, (n, state)) = firstStall tuples
+    firstStall (hd@(s1, _) : tl@((s2, _) : _)) = if s1 == s2 then hd else firstStall tl
+    firstStall _ = error "no stall"
 
 main :: IO ()
 main = do
@@ -70,14 +71,8 @@ main = do
   content <- readFile inputFile
   let (dims, initState) = parseGrid content
       initCount = numRolls initState
-  -- putStr $ gridToStr dims initState
-  print $ count1 dims initState
-  let states = iterate (step dims) initState
-      state100 = states !! 100
-      state101 = states !! 101
-  print $ numRolls state100
-  -- putStrLn $ gridToStr dims state100
-  putStrLn "---"
-  print $ numRolls state101
-  -- putStrLn $ gridToStr dims state101
-  print (initCount - numRolls state101)
+      part1 = initCount - numRolls (step dims initState)
+      (n, finalCount, _) = iterateUntilStall (step dims) numRolls initState
+      part2 = initCount - finalCount
+  putStrLn $ "Part 1: " ++ show part1
+  putStrLn $ "Part 2: " ++ show part2 ++ "; Stalled after " ++ show n ++ " steps with " ++ show finalCount ++ " rolls."
