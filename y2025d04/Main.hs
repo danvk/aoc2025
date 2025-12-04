@@ -4,9 +4,6 @@ import Data.Map qualified as M
 import Grid
 import System.Environment (getArgs)
 
-charAtPoint :: Grid -> Point -> Char
-charAtPoint g pt = M.findWithDefault '.' pt g
-
 numNeighbors :: Size -> Grid -> Point -> Int
 numNeighbors dims g pt = length $ filter (\n -> charAtPoint g n == '@') (neighbors dims pt)
 

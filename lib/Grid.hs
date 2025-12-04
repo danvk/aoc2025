@@ -1,8 +1,7 @@
-module Grid (Point, Size, Grid, parseGrid, gridToStr, neighbors) where
-
+module Grid (Point, Size, Grid, parseGrid, gridToStr, charAtPoint, neighbors) where
 
 import Data.List
-import Data.Map qualified as M
+import Data.Map.Strict qualified as M
 
 type Point = (Int, Int)
 

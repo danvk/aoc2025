@@ -60,23 +60,10 @@ common common-extensions
     default-language: GHC2021
     build-depends: base, containers, split
 
-library aoclib
+library lib
     import: warnings, common-extensions
-    exposed-modules: AocLib
-    hs-source-dirs: lib/aoclib
-    build-depends: base, containers, split
-
-library circuit
-    import: warnings, common-extensions
-    exposed-modules: Circuit
-    hs-source-dirs: lib/circuit
-    build-depends: base, containers, split, aoclib
-
-library grid
-    import: warnings, common-extensions
-    exposed-modules: Grid
-    hs-source-dirs: lib/grid
-    build-depends: base
+    exposed-modules: AocLib, Circuit, Grid
+    hs-source-dirs: lib
 
 executable y2015d03
     import: warnings, common-extensions
@@ -118,7 +105,7 @@ executable y2015d08
 executable y2015d09
     import: warnings, common-extensions
     main-is: y2015d09/Main.hs
-    build-depends: aoclib, circuit
+    build-depends: lib
 
 executable y2015d10
     import: warnings, common-extensions
@@ -140,17 +127,16 @@ executable y2025d01
 executable y2015d13
     import: warnings, common-extensions
     main-is: y2015d13/Main.hs
-    build-depends: circuit
+    build-depends: lib
 
 executable y2025d02
     import: warnings, common-extensions
     main-is: y2025d02/Main.hs
-    build-depends: split
 
 executable y2015d14
     import: warnings, common-extensions
     main-is: y2015d14/Main.hs
-    build-depends: aoclib
+    build-depends: lib
 
 executable y2015d15
     import: warnings, common-extensions
@@ -171,7 +157,7 @@ executable y2025d03
 executable y2015d18
     import: warnings, common-extensions
     main-is: y2015d18/Main.hs
-    build-depends: grid
+    build-depends: lib
 
 executable y2015d19
     import: warnings, common-extensions
@@ -180,4 +166,4 @@ executable y2015d19
 executable y2025d04
     import: warnings, common-extensions
     main-is: y2025d04/Main.hs
-    build-depends: grid
+    build-depends: lib

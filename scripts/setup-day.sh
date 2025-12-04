@@ -36,6 +36,7 @@ cat <<END >> aoc2025.cabal
 executable $hs_dir
     import: warnings, common-extensions
     main-is: $hs_file
+    build-depends: lib
 END
 
 # https://adventofcode.com/2024/day/3/input
