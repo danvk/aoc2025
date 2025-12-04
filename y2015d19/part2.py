@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-import sys
-
 lines = [x.strip() for x in open('input/2015/day19/input.txt').readlines()]
 molecule = lines[-1]
 productions = [tuple(line.split(' => ')) for line in lines[:-2]]
@@ -84,6 +82,8 @@ def all_matches(haystack: str, needle: str):
 
 def steps_to_target(molecules: set[str], targets: set[str]):
     assert molecules
+    print(len(molecules))
+    print(min(len(m) for m in molecules))
     if not molecules.isdisjoint(targets):
         match = [*(molecules & targets)][0]
         return [match]
@@ -106,7 +106,6 @@ print(steps_to_target({'TiBSiThCaCaSiThCaF'}, targets))
 easyforces.append(('CaCa', 'CaCaCa'))
 easyforces.append(('TiTi', 'TiTiTi'))
 
-
 num = 0
 while True:
     print(len(molecule), molecule)
@@ -124,23 +123,45 @@ while True:
     #     is_match = True
     #     num += 1
     #     print('  (regex)')
-    if not is_match:
+    if not is_match and 'Rn' in molecule:
         start, stop = find_leaf(molecule)
         # molecule[start:stop] = Rn..Ar
         inner = molecule[start+2:stop-2]
-        steps = steps_to_target({inner}, targets)
-        num += (len(steps) - 1)
-        print('  inner steps', len(steps) - 1, steps)
-        # print('    ', molecule)
-        molecule = molecule[:start+2] + steps[-1] + molecule[stop-2:]
-        # print('  ->', molecule)
+        did_the_y = False
+        if 'Y' in inner and len(inner) > 10:
+            y = inner.index('Y')
+            stop = start+2+y
+            print('   ', inner)
+            inner = molecule[start+2:stop]
+            if len(inner) > 10:
+                did_the_y = True
+                print(' ->', inner)
+                steps = steps_to_target({inner}, {'F', 'Mg'})
+                num += (len(steps) - 1)
+                print('  inner steps', len(steps) - 1, steps)
+                # print('    ', molecule)
+                molecule = molecule[:start+2] + steps[-1] + molecule[stop:]
+                # print('  ->', molecule)
+        if not did_the_y:
+            start, stop = find_leaf(molecule)
+            # molecule[start:stop] = Rn..Ar
+            inner = molecule[start+2:stop-2]
+            steps = steps_to_target({inner}, targets)
+            num += (len(steps) - 1)
+            print('  inner steps', len(steps) - 1, steps)
+            # print('    ', molecule)
+            molecule = molecule[:start+2] + steps[-1] + molecule[stop-2:]
+            # print('  ->', molecule)
         is_match = True
 
     if not is_match:
         break
 
-print(molecule)
-print(molecule.replace('Rn', '<p>').replace('Ar', '</p>'))
+print('Backed out to', molecule)
+final_steps = steps_to_target({molecule}, {'e'})
+print(final_steps)
+num += len(final_steps) - 1
+print(f'{num=}')
 
-
-print(apply_replacement(parse_molecule('HF')))
+# print(molecule.replace('Rn', '<p>').replace('Ar', '</p>'))
+# print(apply_replacement(parse_molecule('HF')))
