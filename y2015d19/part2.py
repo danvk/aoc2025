@@ -103,6 +103,9 @@ print(steps_to_target({'SiAlYSiAl'}, targets))
 print(steps_to_target({'FYCaPTiBCaSiThCaSiThPMg'}, targets))
 print(steps_to_target({'TiBSiThCaCaSiThCaF'}, targets))
 
+easyforces.append(('CaCa', 'CaCaCa'))
+easyforces.append(('TiTi', 'TiTiTi'))
+
 
 num = 0
 while True:
