@@ -1,3 +1,5 @@
+import Data.Maybe
+
 -- https://adventofcode.com/2015/day/21
 
 data Spell = MagicMissile | Drain | Shield | Poison | Recharge deriving (Show, Eq)
@@ -41,6 +43,14 @@ applyBossEffects p b = b {boss_hp = new_boss_hp}
     active_effects = map fst $ effects p
     new_boss_hp = max 0 $ boss_hp b - if Poison `elem` active_effects then 3 else 0
 
+castSpell :: State -> (Int, Effect) -> Maybe State
+castSpell (mana, _, p, b) (cost, (spell, turns)) =
+  if mana < cost
+    then Nothing
+    else Just (mana, BossSpell, p, b)
+
+-- TODO: ^^^ apply this spell
+
 step :: State -> [State]
 step (mana, PlayerSpell, p, b) = [(mana, if isBossAlive then PlayerAct else PlayerWin, newPlayer, newBoss)]
   where
@@ -52,13 +62,15 @@ step (mana, BossSpell, p, b) = [(mana, if isBossAlive then BossAct else PlayerWi
     newPlayer = applyPlayerEffects p
     newBoss = applyBossEffects p b
     isBossAlive = boss_hp newBoss > 0
-step (mana, BossAct, p, b) = [(mana, PlayerSpell, damagedPlayer, b) | isAlive]
+step (mana, BossAct, p, b) = [(mana, if isAlive then PlayerSpell else BossWin, damagedPlayer, b)]
   where
     hpDamage = max 1 (damage b - armor p)
     newHp = max 0 (player_hp p - hpDamage)
     isAlive = newHp > 0
     damagedPlayer = p {player_hp = newHp}
-step (mana, PlayerAct, p, b) = [(mana, BossSpell, p, b)]
+step state@(mana, PlayerAct, p, b) = if null nextStates then [(mana, BossWin, p, b)] else nextStates
+  where
+    nextStates = mapMaybe (castSpell state) spells
 step (_, PlayerWin, _, _) = []
 step (_, BossWin, _, _) = []
 
