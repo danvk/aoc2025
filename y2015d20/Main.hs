@@ -13,9 +13,7 @@ presents n = 10 * sum (map (\x -> n `div` x + x) (filter (\x -> n `mod` x == 0) 
     overcount = if sqrtn * sqrtn == n then 10 * sqrtn else 0
 
 presents2 :: Int -> Int
-presents2 n = 11 * sum (map (\x -> (if n `div` x <= 50 then n `div` x else 0) + x) (filter (\x -> n `mod` x == 0) [1 .. sqrtn]))
-  where
-    sqrtn = intSqrt n
+presents2 n = 11 * sum (map (\x -> n `div` x) (filter (\x -> n `mod` x == 0) [1 .. 50]))
 
 main :: IO ()
 main = do
