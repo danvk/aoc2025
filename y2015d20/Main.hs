@@ -3,21 +3,19 @@
 import Data.List
 import System.Environment (getArgs)
 
-elf :: Int -> [Int]
-elf n = intercalate zeros [[10 * x] | x <- [1 ..]]
-  where
-    zeros = replicate (n - 1) 0
+intSqrt :: Int -> Int
+intSqrt n = floor (sqrt (fromIntegral n :: Double))
 
-elves :: Int -> [Int]
-elves n = head elfn : zipWith (+) (tail elfn) elvesn1
+presents :: Int -> Int
+presents n = 10 * sum (map (\x -> n `div` x + x) (filter (\x -> n `mod` x == 0) [1 .. sqrtn])) - overcount
   where
-    elfn = elf n
-    elvesn1 = elves (n + 1)
+    sqrtn = intSqrt n
+    overcount = if sqrtn * sqrtn == n then 10 * sqrtn else 0
 
 main :: IO ()
 main = do
   args <- getArgs
   let n = read @Int $ head args
-      houses = zip [1 :: Int ..] $ elves 1
+      houses = zip [1 :: Int ..] $ map presents [1 ..]
       match = find (\(_, num) -> num >= n) houses
   print match
