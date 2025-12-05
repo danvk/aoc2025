@@ -36,10 +36,4 @@ main = do
       disjointRanges = nub $ sort $ concatMap (splitRange edges) freshRanges
       part2 = sum $ map (\(a, b) -> b - a) disjointRanges
   print part1
-  print $ length freshRanges
-  -- print edges
-  -- print disjointRanges
   print part2
-
--- print freshRanges
--- print ingredients
