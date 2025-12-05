@@ -92,4 +92,6 @@ playerWithKit hp item = Actor {role = Player, hp = hp, actor_damage = damage ite
 main :: IO ()
 main = do
   let part1 = find (\kit -> winner (playerWithKit 100 kit) boss == Player) kits
+      part2 = find (\kit -> winner (playerWithKit 100 kit) boss == Boss) $ reverse kits
   print part1
+  print part2
