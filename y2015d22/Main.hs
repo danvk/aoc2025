@@ -8,11 +8,11 @@ type Effect = (Spell, Int)
 
 spells :: [(Int, Effect)]
 spells =
-  [ (53, (MagicMissile, 0)),
-    (73, (Drain, 0)),
-    (113, (Shield, 6)),
-    (173, (Poison, 6)),
-    (229, (Recharge, 5))
+  [ (53, (MagicMissile, 0)), -- instantly do 4 damage
+    (73, (Drain, 0)), -- instantly do 2 damage and heals you for 2 hp
+    (113, (Shield, 6)), -- starts an effect to increase armor by 7
+    (173, (Poison, 6)), -- starts an effect to deal boss 3 damage each pen
+    (229, (Recharge, 5)) -- starts an effect to give you 101 mana
   ]
 
 data Turn = PlayerAct | BossSpell | BossAct | PlayerSpell | PlayerWin | BossWin deriving (Show, Eq)
@@ -44,12 +44,24 @@ applyBossEffects p b = b {boss_hp = new_boss_hp}
     new_boss_hp = max 0 $ boss_hp b - if Poison `elem` active_effects then 3 else 0
 
 castSpell :: State -> (Int, Effect) -> Maybe State
-castSpell (mana, _, p, b) (cost, (spell, turns)) =
-  if mana < cost
+castSpell (mana_spent, _, p, b) (cost, e@(spell, _)) =
+  if mana p < cost
     then Nothing
-    else Just (mana, BossSpell, p, b)
-
--- TODO: ^^^ apply this spell
+    else
+      Just
+        ( mana_spent + cost,
+          if boss_hp nb > 0 then BossSpell else PlayerWin,
+          np,
+          nb
+        )
+  where
+    bhp = boss_hp b
+    mehp = player_hp p
+    (np, nb) = case spell of
+      MagicMissile -> (p, b {boss_hp = max 0 (bhp - 4)})
+      Drain -> (p {player_hp = mehp + 2}, b {boss_hp = max 0 (bhp - 2)})
+      Shield -> (p {armor = 7 + armor np, effects = e : effects p}, b)
+      _ -> (p {effects = e : effects p}, b)
 
 step :: State -> [State]
 step (mana, PlayerSpell, p, b) = [(mana, if isBossAlive then PlayerAct else PlayerWin, newPlayer, newBoss)]
@@ -70,7 +82,9 @@ step (mana, BossAct, p, b) = [(mana, if isAlive then PlayerSpell else BossWin, d
     damagedPlayer = p {player_hp = newHp}
 step state@(mana, PlayerAct, p, b) = if null nextStates then [(mana, BossWin, p, b)] else nextStates
   where
-    nextStates = mapMaybe (castSpell state) spells
+    activeSpells = map fst $ effects p
+    availableSpells = filter (\s -> fst (snd s) `notElem` activeSpells) spells
+    nextStates = mapMaybe (castSpell state) availableSpells
 step (_, PlayerWin, _, _) = []
 step (_, BossWin, _, _) = []
 
