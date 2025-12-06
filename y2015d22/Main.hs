@@ -92,12 +92,16 @@ main :: IO ()
 main = do
   -- Boss {boss_hp=51, damage=9}
   let boss = Boss {boss_hp = 13, damage = 8}
-      player = Player {player_hp = 10, mana = 250, armor = 0, effects = [(Poison, 6)]}
-      state0 = (77, BossSpell, player, boss)
+      player = Player {player_hp = 10, mana = 77, armor = 0, effects = [(Poison, 6)]}
+      state0 = (173, BossSpell, player, boss)
       state1s = step state0
       state2s = concatMap step state1s
       state3s = concatMap step state2s
+      state4s = concatMap step state3s
+      state5s = concatMap step state4s
   print state0
   print state1s
   print state2s
   print state3s
+  print state4s
+  print state5s
