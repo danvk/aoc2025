@@ -6,15 +6,15 @@ import Data.List
 import Data.List.Split
 import System.Environment (getArgs)
 
+trim :: String -> String
+trim = dropWhile isSpace . reverse . dropWhile isSpace . reverse
+
 applyOp :: [String] -> Int
 applyOp ("*" : nums) = product $ map (read @Int) nums
 applyOp ("+" : nums) = sum $ map (read @Int) nums
 
-fn :: [String] -> [String]
-fn (op : nums) = trim op : map reverse (transpose nums)
-
-trim :: String -> String
-trim = dropWhile isSpace . reverse . dropWhile isSpace . reverse
+transform2 :: [String] -> [String]
+transform2 (op : nums) = trim op : map reverse (transpose nums)
 
 main :: IO ()
 main = do
@@ -22,6 +22,6 @@ main = do
   let inputFile = head args
   content <- readFile inputFile
   let part1 = sum $ map (applyOp . reverse) (transpose $ map words $ lines content)
-      part2 = sum $ map applyOp $ map (fn . reverse . transpose) $ wordsBy (all (== ' ')) $ transpose $ lines content
+      part2 = sum $ map (applyOp . transform2 . reverse . transpose) (wordsBy (all (== ' ')) $ transpose $ lines content)
   print part1
   print part2
