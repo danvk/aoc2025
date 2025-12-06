@@ -145,6 +145,7 @@ executable y2015d15
 executable y2015d16
     import: warnings, common-extensions
     main-is: y2015d16/Main.hs
+    build-depends: lib
 
 executable y2015d17
     import: warnings, common-extensions

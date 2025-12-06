@@ -1,8 +1,9 @@
 -- https://adventofcode.com/2015/day/23
 
+import AocLib
+import Data.List (unfoldr)
 import Data.Map qualified as M
 import System.Environment (getArgs)
-import Text.Read (readMaybe)
 
 data Instr
   = Hlf Char
@@ -12,15 +13,6 @@ data Instr
   | Jie Char Int
   | Jio Char Int
   deriving (Eq, Show)
-
--- TODO: move into lib (shared with y2015d16)
-eraseChars :: String -> String -> String
-eraseChars elim = filter (not . (`elem` elim))
-
-loudRead :: (Read a) => String -> a
-loudRead s = case readMaybe s of
-  Just x -> x
-  Nothing -> error $ "Unable to parse '" ++ s ++ "'"
 
 parseLine :: String -> Instr
 parseLine str = case words (eraseChars "+," str) of
@@ -53,12 +45,8 @@ exec (Jio r offset) (n, regs) = (if (regs M.! r) == 1 then n + offset else n + 1
 step :: [Instr] -> State -> Maybe State
 step instrs s@(idx, _) = fmap (`exec` s) (instrs !? idx)
 
--- TODO: I think this is a fold
 iterateToNone :: (a -> Maybe a) -> a -> [a]
-iterateToNone fn start = go (Just start)
-  where
-    go Nothing = []
-    go (Just x) = x : go (fn x)
+iterateToNone f = unfoldr (\x -> (x,) <$> f x)
 
 main :: IO ()
 main = do

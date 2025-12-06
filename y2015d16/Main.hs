@@ -1,9 +1,9 @@
 -- https://adventofcode.com/2015/day/16
 
+import AocLib
 import Data.List.Split
 import Data.Map qualified as M
 import System.Environment (getArgs)
-import Text.Read
 
 type Compounds = M.Map String Integer
 
@@ -36,14 +36,6 @@ target2 =
       ("goldfish", (< 5)),
       ("pomeranians", (< 3))
     ]
-
-loudRead :: (Read a) => String -> a
-loudRead s = case readMaybe s of
-  Just x -> x
-  Nothing -> error $ "Unable to parse '" ++ s ++ "'"
-
-eraseChars :: String -> String -> String
-eraseChars elim = filter (not . (`elem` elim))
 
 -- Sue 1: children: 1, cars: 8, vizslas: 7
 parseSue :: String -> (Int, Compounds)
