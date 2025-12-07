@@ -22,7 +22,7 @@ def make_table(nums: Sequence[int]):
     return table
 
 
-def min_sum_sets(nums: Sequence[int], big_target: int):
+def min_sum_sets(nums: Sequence[int], big_target: int, slack=5):
     t = make_table(nums)
 
     def help(i: int, target: int):
@@ -38,8 +38,11 @@ def min_sum_sets(nums: Sequence[int], big_target: int):
                 return []  # impossible
 
         min_items = t[i][target]
-        # First try _not_ taking this item. Might be impossible.
-        choices = help(i - 1, target)
+        choices = []
+        # comment out this "if" to get _all_ ways to sum to target.
+        if t[i - 1][target] == min_items:
+            # It's OK to _not_ take this item.
+            choices = help(i - 1, target)
         if num == target:
             choices.append([num])
         elif t[i - 1][target - num] == min_items - 1:
@@ -50,6 +53,16 @@ def min_sum_sets(nums: Sequence[int], big_target: int):
         return choices
 
     return help(len(nums) - 1, big_target)
+
+
+def is_valid_set(
+    all_nums: Sequence[int], santa_nums: Sequence[int], target: int
+) -> bool:
+    """Can all_nums be partitioned into sums-to-target sets after removing santa_nums?"""
+    sns = set(santa_nums)
+    nums = [n for n in all_nums if n not in sns]
+    t = make_table(nums)
+    return t[-1][target] < math.inf
 
 
 if __name__ == "__main__":
@@ -63,4 +76,7 @@ if __name__ == "__main__":
     # for i, row in enumerate(t):
     #     print(i, sorted([*row.items()]))
     print(t[-1][target])
-    print(min_sum_sets(nums, target))
+    santa_sets = min_sum_sets(nums, target)
+    print(len(santa_sets))
+    valid_santa_sets = [ss for ss in santa_sets if is_valid_set(nums, ss, target)]
+    print(len(valid_santa_sets))
