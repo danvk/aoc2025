@@ -105,3 +105,5 @@ main = do
   print state3s
   print state4s
   print state5s
+
+-- TODO: sort next states by mana spent, iterate until you win.
