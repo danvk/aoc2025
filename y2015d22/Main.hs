@@ -16,7 +16,7 @@ spells =
     (229, (Recharge, 5)) -- starts an effect to give you 101 mana
   ]
 
-data Turn = PlayerAct | BossSpell | BossAct | PlayerSpell | PlayerWin | BossWin deriving (Show, Eq)
+data Turn = PlayerAct | BossPrespell | BossSpell | BossAct | PlayerPrespell | PlayerSpell | PlayerWin | BossWin deriving (Show, Eq)
 
 data Boss = Boss {boss_hp :: Int, damage :: Int} deriving (Show)
 
@@ -51,7 +51,7 @@ castSpell (mana_spent, _, p, b) (cost, e@(spell, _)) =
     else
       Just
         ( mana_spent + cost,
-          if boss_hp nb > 0 then BossSpell else PlayerWin,
+          if boss_hp nb > 0 then BossPrespell else PlayerWin,
           np {mana = mana np - cost},
           nb
         )
@@ -65,6 +65,14 @@ castSpell (mana_spent, _, p, b) (cost, e@(spell, _)) =
       _ -> (p {effects = e : effects p}, b)
 
 step :: State -> [State]
+step (mana, PlayerPrespell, p, b) = [(mana, if isPlayerAlive then PlayerSpell else BossWin, np, b)]
+  where
+    np = p {player_hp = player_hp p - 1}
+    isPlayerAlive = player_hp np > 0
+step (mana, BossPrespell, p, b) = [(mana, if isPlayerAlive then BossSpell else BossWin, np, b)]
+  where
+    np = p {player_hp = player_hp p - 1}
+    isPlayerAlive = player_hp np > 0
 step (mana, PlayerSpell, p, b) = [(mana, if isBossAlive then PlayerAct else PlayerWin, newPlayer, newBoss)]
   where
     newPlayer = applyPlayerEffects p
@@ -75,7 +83,7 @@ step (mana, BossSpell, p, b) = [(mana, if isBossAlive then BossAct else PlayerWi
     newPlayer = applyPlayerEffects p
     newBoss = applyBossEffects p b
     isBossAlive = boss_hp newBoss > 0
-step (mana, BossAct, p, b) = [(mana, if isAlive then PlayerSpell else BossWin, damagedPlayer, b)]
+step (mana, BossAct, p, b) = [(mana, if isAlive then PlayerPrespell else BossWin, damagedPlayer, b)]
   where
     hpDamage = max 1 (damage b - armor p)
     newHp = max 0 (player_hp p - hpDamage)
@@ -88,13 +96,6 @@ step state@(mana, PlayerAct, p, b) = if null nextStates then [(mana, BossWin, p,
     nextStates = mapMaybe (castSpell state) availableSpells
 step (_, PlayerWin, _, _) = []
 step (_, BossWin, _, _) = []
-
-stepDebug :: State -> [(Int, (Spell, Int))]
-stepDebug state@(mana, PlayerAct, p, b) = availableSpells
-  where
-    activeSpells = map fst $ effects p
-    availableSpells = filter (\s -> fst (snd s) `notElem` activeSpells) spells
-stepDebug _ = error ""
 
 bfs :: (a -> [a]) -> (a -> Int) -> (a -> Bool) -> [a] -> Maybe a
 bfs stepFn weight done starts = go initHeap
@@ -121,7 +122,7 @@ main = do
   --     player = Player {player_hp = 10, mana = 250, armor = 0, effects = []}
   let boss = Boss {boss_hp = 51, damage = 9}
       player = Player {player_hp = 50, mana = 500, armor = 0, effects = []}
-      state0 = (0, PlayerAct, player, boss)
+      state0 = (0, PlayerPrespell, player, boss)
       result = bfs step manaUsed isPlayerWin [state0]
   print result
 
