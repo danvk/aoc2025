@@ -72,10 +72,7 @@ if __name__ == "__main__":
     print(len(nums), target)
     assert nums == [*sorted(nums)]  # list is sorted
     assert len(set(nums)) == len(nums)  # all numbers are unique
-    t = make_table(nums)
-    # for i, row in enumerate(t):
-    #     print(i, sorted([*row.items()]))
-    print(t[-1][target])
+
     santa_sets = min_sum_sets(nums, target)
     print(len(santa_sets))
     valid_santa_sets = [ss for ss in santa_sets if is_valid_set(nums, ss, target)]
@@ -83,3 +80,10 @@ if __name__ == "__main__":
 
     valid_santa_sets.sort(key=math.prod)
     print(math.prod(valid_santa_sets[0]))
+
+    assert sum(nums) % 4 == 0
+    target2 = sum(nums) // 4
+    santa_sets2 = min_sum_sets(nums, target2)
+    print(len(santa_sets2))
+    santa_sets2.sort(key=math.prod)
+    print(math.prod(santa_sets2[0]))
