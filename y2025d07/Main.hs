@@ -1,5 +1,6 @@
 -- https://adventofcode.com/2025/day/7
 
+import Data.Bifunctor qualified
 import Data.List
 import Data.Map.Strict qualified as M
 import Grid
@@ -23,11 +24,18 @@ step g (splits, beams) = (splits + new_splits, new_beams)
     new_beams = nub $ concatMap snd nexts
     new_splits = sum $ map fst nexts
 
-step2 :: Grid -> [Point] -> [Point]
-step2 g beams = new_beams
+-- TODO: understand this
+mapFsts :: (a -> b) -> [(a, c)] -> [(b, c)]
+mapFsts f = map (Data.Bifunctor.first f)
+
+-- TODO: there must be a more idiomatic way to write this
+step2 :: Grid -> [(Point, Int)] -> [(Point, Int)]
+step2 g beams = merged_beams
   where
-    nexts = map (stepBeam g) beams
-    new_beams = concatMap snd nexts
+    nexts = mapFsts (snd . stepBeam g) beams
+    new_beams = concatMap (\(pts, count) -> map (,count) pts) nexts
+    grouped_beams = groupBy (\a b -> fst a == fst b) $ sort new_beams
+    merged_beams = map (\pcs -> (fst $ head pcs, sum $ map snd pcs)) grouped_beams
 
 main :: IO ()
 main = do
@@ -40,7 +48,7 @@ main = do
   -- print start
   let (part1, _) = iterate (step g) (0, [start]) !! height
   print part1
-  let part2 = length $ iterate (step2 g) [start] !! height
+  let part2 = sum $ map snd $ iterate (step2 g) [(start, 1)] !! height
   print part2
 
 -- print $ stepBeam g (7, 1)
