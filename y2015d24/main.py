@@ -80,3 +80,6 @@ if __name__ == "__main__":
     print(len(santa_sets))
     valid_santa_sets = [ss for ss in santa_sets if is_valid_set(nums, ss, target)]
     print(len(valid_santa_sets))
+
+    valid_santa_sets.sort(key=math.prod)
+    print(math.prod(valid_santa_sets[0]))
