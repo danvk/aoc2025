@@ -204,3 +204,8 @@ executable y2015d24
     import: warnings, common-extensions
     main-is: y2015d24/Main.hs
     build-depends: lib
+
+executable y2025d07
+    import: warnings, common-extensions
+    main-is: y2025d07/Main.hs
+    build-depends: lib
