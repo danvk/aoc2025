@@ -1,6 +1,14 @@
 -- https://adventofcode.com/2025/day/7
+
+import Data.List
+import Data.Map.Strict qualified as M
 import Grid
 import System.Environment (getArgs)
+
+findChar :: Grid -> Char -> Point
+findChar g c = case find (\(_, ch) -> c == ch) $ M.toList g of
+  Nothing -> error $ "Unable to find " ++ [c]
+  Just (p, _) -> p
 
 main :: IO ()
 main = do
@@ -9,3 +17,4 @@ main = do
   content <- readFile inputFile
   let (dims, g) = parseGrid content
   putStrLn $ gridToStr dims g
+  print $ findChar g 'S'
