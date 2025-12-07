@@ -52,7 +52,7 @@ castSpell (mana_spent, _, p, b) (cost, e@(spell, _)) =
       Just
         ( mana_spent + cost,
           if boss_hp nb > 0 then BossSpell else PlayerWin,
-          np,
+          np {mana = mana np - cost},
           nb
         )
   where
@@ -61,7 +61,7 @@ castSpell (mana_spent, _, p, b) (cost, e@(spell, _)) =
     (np, nb) = case spell of
       MagicMissile -> (p, b {boss_hp = max 0 (bhp - 4)})
       Drain -> (p {player_hp = mehp + 2}, b {boss_hp = max 0 (bhp - 2)})
-      Shield -> (p {armor = 7 + armor np, effects = e : effects p}, b)
+      Shield -> (p {armor = 7 + armor p, effects = e : effects p}, b)
       _ -> (p {effects = e : effects p}, b)
 
 step :: State -> [State]
@@ -89,6 +89,13 @@ step state@(mana, PlayerAct, p, b) = if null nextStates then [(mana, BossWin, p,
 step (_, PlayerWin, _, _) = []
 step (_, BossWin, _, _) = []
 
+stepDebug :: State -> [(Int, (Spell, Int))]
+stepDebug state@(mana, PlayerAct, p, b) = availableSpells
+  where
+    activeSpells = map fst $ effects p
+    availableSpells = filter (\s -> fst (snd s) `notElem` activeSpells) spells
+stepDebug _ = error ""
+
 bfs :: (a -> [a]) -> (a -> Int) -> (a -> Bool) -> [a] -> Maybe a
 bfs stepFn weight done starts = go initHeap
   where
@@ -115,12 +122,20 @@ main = do
       -- let boss = Boss {boss_hp = 51, damage = 9}
       --     player = Player {player_hp = 50, mana = 500, armor = 0, effects = []}
       state0 = (0, PlayerAct, player, boss)
-      -- result = bfs step manaUsed isPlayerWin [state0]
-      -- print result
+      result = bfs step manaUsed isPlayerWin [state0]
+  print result
 
-      state1s = step state0
-  print state0
-  print state1s
+-- [(53,(MagicMissile,0)), <-- good!
+--  (73,(Drain,0)), <-- good!
+--  (113,(Shield,6)), <-- loop!
+--  (173,(Poison,6)),
+--  (229,(Recharge,5))
+-- ]
+-- state1 = castSpell state0 (113, (Shield, 6))
+
+-- state1s = step state0
+-- print state0
+-- print state1s
 
 -- state2s = concatMap step state1s
 -- state3s = concatMap step state2s
