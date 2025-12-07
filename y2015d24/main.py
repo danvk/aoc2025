@@ -75,6 +75,7 @@ if __name__ == "__main__":
 
     santa_sets = min_sum_sets(nums, target)
     print(len(santa_sets))
+    # apparently this check is not necessary!
     valid_santa_sets = [ss for ss in santa_sets if is_valid_set(nums, ss, target)]
     print(len(valid_santa_sets))
 

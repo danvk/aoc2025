@@ -188,7 +188,7 @@ executable y2015d21
 executable y2015d22
     import: warnings, common-extensions
     main-is: y2015d22/Main.hs
-    build-depends: lib
+    build-depends: lib, heap
 
 executable y2025d06
     import: warnings, common-extensions

@@ -1,6 +1,7 @@
-import Data.Maybe
-
 -- https://adventofcode.com/2015/day/21
+
+import Data.Heap qualified
+import Data.Maybe
 
 data Spell = MagicMissile | Drain | Shield | Poison | Recharge deriving (Show, Eq)
 
@@ -87,6 +88,13 @@ step state@(mana, PlayerAct, p, b) = if null nextStates then [(mana, BossWin, p,
     nextStates = mapMaybe (castSpell state) availableSpells
 step (_, PlayerWin, _, _) = []
 step (_, BossWin, _, _) = []
+
+bfs :: (a -> [a]) -> (a -> Int) -> (a -> Bool) -> [a] -> a
+bfs step weight done starts = go initHeap
+  where
+    initList = zip (map weight starts) starts
+    initHeap = Data.Heap.fromList initList :: Data.Heap.MinPrioHeap Int a
+    go _ = head starts
 
 main :: IO ()
 main = do
