@@ -1,11 +1,8 @@
 -- https://adventofcode.com/2015/day/25
 
 import Data.List
+import Data.Maybe
 import System.Environment (getArgs)
-
-assertJust :: Maybe a -> a
-assertJust (Just x) = x
-assertJust Nothing = error "nothing"
 
 coords :: [(Int, Int)]
 coords = go (1, 1)
@@ -29,7 +26,7 @@ main = do
   args <- getArgs
   let row = read @Int $ head args
       col = read @Int $ args !! 1
-      idx = assertJust (elemIndex (col, row) coords)
+      idx = fromJust (elemIndex (col, row) coords)
   -- print row
   -- print col
   -- print $ take 10 coords
