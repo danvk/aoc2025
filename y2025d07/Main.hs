@@ -1,6 +1,7 @@
 -- https://adventofcode.com/2025/day/7
 
 import Data.Bifunctor qualified
+import Data.Function
 import Data.List
 import Data.Map.Strict qualified as M
 import Grid
@@ -24,31 +25,30 @@ step g (splits, beams) = (splits + new_splits, new_beams)
     new_beams = nub $ concatMap snd nexts
     new_splits = sum $ map fst nexts
 
--- TODO: understand this
-mapFsts :: (a -> b) -> [(a, c)] -> [(b, c)]
-mapFsts f = map (Data.Bifunctor.first f)
-
--- TODO: there must be a more idiomatic way to write this
-step2 :: Grid -> [(Point, Int)] -> [(Point, Int)]
-step2 g beams = merged_beams
+mapReduce :: (Ord b) => (a -> [(b, c)]) -> (b -> [c] -> d) -> [a] -> [(b, d)]
+mapReduce mapFn reduceFn xs = merged
   where
-    nexts = mapFsts (snd . stepBeam g) beams
-    new_beams = concatMap (\(pts, count) -> map (,count) pts) nexts
-    grouped_beams = groupBy (\a b -> fst a == fst b) $ sort new_beams
-    merged_beams = map (\pcs -> (fst $ head pcs, sum $ map snd pcs)) grouped_beams
+    mapped = concatMap mapFn xs
+    grouped = groupBy (\a b -> fst a == fst b) $ sortBy (compare `on` fst) mapped
+    merged = map (\pcs -> (fst $ head pcs, reduceFn (fst $ head pcs) (map snd pcs))) grouped
+
+-- (point, # of ways to get there)
+step2 :: Grid -> [(Point, Int)] -> [(Point, Int)]
+step2 g =
+  mapReduce
+    (\(p, c) -> map (,c) $ snd (stepBeam g p))
+    (\_ counts -> sum counts)
 
 main :: IO ()
 main = do
   args <- getArgs
   let inputFile = head args
   content <- readFile inputFile
-  let (dims@(_, height), g) = parseGrid content
+  let ((_, height), g) = parseGrid content
       start = findChar g 'S'
-  -- putStrLn $ gridToStr dims g
-  -- print start
-  let (part1, _) = iterate (step g) (0, [start]) !! height
+      (part1, _) = iterate (step g) (0, [start]) !! height
+      part2 = sum $ map snd $ iterate (step2 g) [(start, 1)] !! height
   print part1
-  let part2 = sum $ map snd $ iterate (step2 g) [(start, 1)] !! height
   print part2
 
 -- print $ stepBeam g (7, 1)
