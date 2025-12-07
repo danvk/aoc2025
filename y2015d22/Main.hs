@@ -93,7 +93,7 @@ bfs :: (a -> [a]) -> (a -> Int) -> (a -> Bool) -> [a] -> a
 bfs step weight done starts = go initHeap
   where
     initList = zip (map weight starts) starts
-    initHeap = Data.Heap.fromList initList :: Data.Heap.MinPrioHeap Int a
+    initHeap = Data.Heap.fromList initList `asTypeOf` (undefined :: Data.Heap.Heap Data.Heap.FstMinPolicy (Int, a))
     go _ = head starts
 
 main :: IO ()
