@@ -89,12 +89,22 @@ step state@(mana, PlayerAct, p, b) = if null nextStates then [(mana, BossWin, p,
 step (_, PlayerWin, _, _) = []
 step (_, BossWin, _, _) = []
 
-bfs :: (a -> [a]) -> (a -> Int) -> (a -> Bool) -> [a] -> a
-bfs step weight done starts = go initHeap
+bfs :: (a -> [a]) -> (a -> Int) -> (a -> Bool) -> [a] -> Maybe a
+bfs stepFn weight done starts = go initHeap
   where
     initList = zip (map weight starts) starts
     initHeap = Data.Heap.fromList initList `asTypeOf` (undefined :: Data.Heap.MinPrioHeap Int a)
-    go _ = head starts
+    go h = case Data.Heap.view h of
+      Just ((_, val), rest) ->
+        if done val then Just val else go (insertAll rest $ map (\x -> (weight x, x)) (stepFn val))
+      Nothing -> Nothing
+    insertAll = foldr Data.Heap.insert
+
+manaUsed :: State -> Int
+manaUsed (x, _, _, _) = x
+
+isPlayerWin :: State -> Bool
+isPlayerWin (_, x, _, _) = x == PlayerWin
 
 main :: IO ()
 main = do
@@ -102,16 +112,19 @@ main = do
   let boss = Boss {boss_hp = 13, damage = 8}
       player = Player {player_hp = 10, mana = 77, armor = 0, effects = [(Poison, 6)]}
       state0 = (173, BossSpell, player, boss)
-      state1s = step state0
-      state2s = concatMap step state1s
-      state3s = concatMap step state2s
-      state4s = concatMap step state3s
-      state5s = concatMap step state4s
-  print state0
-  print state1s
-  print state2s
-  print state3s
-  print state4s
-  print state5s
+      result = bfs step manaUsed isPlayerWin [state0]
+  print result
+
+--     state1s = step state0
+--     state2s = concatMap step state1s
+--     state3s = concatMap step state2s
+--     state4s = concatMap step state3s
+--     state5s = concatMap step state4s
+-- print state0
+-- print state1s
+-- print state2s
+-- print state3s
+-- print state4s
+-- print state5s
 
 -- TODO: sort next states by mana spent, iterate until you win.
