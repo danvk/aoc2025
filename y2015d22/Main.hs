@@ -117,10 +117,10 @@ main :: IO ()
 main = do
   -- You start with 50 hit points and 500 mana points.
   -- Boss {boss_hp=51, damage=9}
-  let boss = Boss {boss_hp = 13, damage = 8}
-      player = Player {player_hp = 10, mana = 250, armor = 0, effects = []}
-      -- let boss = Boss {boss_hp = 51, damage = 9}
-      --     player = Player {player_hp = 50, mana = 500, armor = 0, effects = []}
+  -- let boss = Boss {boss_hp = 13, damage = 8}
+  --     player = Player {player_hp = 10, mana = 250, armor = 0, effects = []}
+  let boss = Boss {boss_hp = 51, damage = 9}
+      player = Player {player_hp = 50, mana = 500, armor = 0, effects = []}
       state0 = (0, PlayerAct, player, boss)
       result = bfs step manaUsed isPlayerWin [state0]
   print result
