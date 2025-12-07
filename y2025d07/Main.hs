@@ -1,6 +1,5 @@
 -- https://adventofcode.com/2025/day/7
 
-import Data.Bifunctor qualified
 import Data.Function
 import Data.List
 import Data.Map.Strict qualified as M

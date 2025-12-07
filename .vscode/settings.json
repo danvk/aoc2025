@@ -2,5 +2,11 @@
     "[haskell]": {
         "editor.formatOnSave": true
     },
+    "[python]": {
+        "diffEditor.ignoreTrimWhitespace": false,
+        "editor.defaultColorDecorators": "never",
+        "editor.formatOnSave": true,
+        "editor.wordBasedSuggestions": "off"
+    },
     "editor.tabSize": 2
 }
