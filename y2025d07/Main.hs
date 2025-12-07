@@ -6,7 +6,7 @@ import Grid
 import System.Environment (getArgs)
 
 findChar :: Grid -> Char -> Point
-findChar g c = case find (\(_, ch) -> c == ch) $ M.toList g of
+findChar g c = case find ((==) c . snd) $ M.toList g of
   Nothing -> error $ "Unable to find " ++ [c]
   Just (p, _) -> p
 
