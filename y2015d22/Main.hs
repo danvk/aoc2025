@@ -16,7 +16,7 @@ spells =
     (229, (Recharge, 5)) -- starts an effect to give you 101 mana
   ]
 
-data Turn = PlayerAct | BossPrespell | BossSpell | BossAct | PlayerPrespell | PlayerSpell | PlayerWin | BossWin deriving (Show, Eq)
+data Turn = PlayerAct | BossSpell | BossAct | PlayerPrespell | PlayerSpell | PlayerWin | BossWin deriving (Show, Eq)
 
 data Boss = Boss {boss_hp :: Int, damage :: Int} deriving (Show)
 
@@ -51,7 +51,7 @@ castSpell (mana_spent, _, p, b) (cost, e@(spell, _)) =
     else
       Just
         ( mana_spent + cost,
-          if boss_hp nb > 0 then BossPrespell else PlayerWin,
+          if boss_hp nb > 0 then BossSpell else PlayerWin,
           np {mana = mana np - cost},
           nb
         )
@@ -66,10 +66,6 @@ castSpell (mana_spent, _, p, b) (cost, e@(spell, _)) =
 
 step :: State -> [State]
 step (mana, PlayerPrespell, p, b) = [(mana, if isPlayerAlive then PlayerSpell else BossWin, np, b)]
-  where
-    np = p {player_hp = player_hp p - 1}
-    isPlayerAlive = player_hp np > 0
-step (mana, BossPrespell, p, b) = [(mana, if isPlayerAlive then BossSpell else BossWin, np, b)]
   where
     np = p {player_hp = player_hp p - 1}
     isPlayerAlive = player_hp np > 0
