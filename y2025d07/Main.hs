@@ -23,6 +23,12 @@ step g (splits, beams) = (splits + new_splits, new_beams)
     new_beams = nub $ concatMap snd nexts
     new_splits = sum $ map fst nexts
 
+step2 :: Grid -> [Point] -> [Point]
+step2 g beams = new_beams
+  where
+    nexts = map (stepBeam g) beams
+    new_beams = concatMap snd nexts
+
 main :: IO ()
 main = do
   args <- getArgs
@@ -34,5 +40,7 @@ main = do
   -- print start
   let (part1, _) = iterate (step g) (0, [start]) !! height
   print part1
+  let part2 = length $ iterate (step2 g) [start] !! height
+  print part2
 
 -- print $ stepBeam g (7, 1)
