@@ -3,6 +3,7 @@
 
 import Data.Bits
 import Data.Heap qualified
+import Data.List
 import Data.Set qualified as S
 import Grid
 import System.Environment (getArgs)
@@ -26,6 +27,23 @@ bfs stepFn weight done starts = go initHeap S.empty
       Nothing -> Nothing
     insertAll = foldr Data.Heap.insert
 
+bfsToNum :: (Ord a) => (a -> [a]) -> (a -> Int) -> Int -> [a] -> [a]
+bfsToNum stepFn weight maxCost starts = go initHeap S.empty
+  where
+    initList = zip (map weight starts) starts
+    initHeap = Data.Heap.fromList initList `asTypeOf` (undefined :: Data.Heap.MinPrioHeap Int a)
+    go h visited = case Data.Heap.view h of
+      Just ((d, val), rest) ->
+        if d > maxCost
+          then []
+          else
+            if val `S.member` visited
+              then go rest visited
+              else
+                val : go (insertAll rest $ map (\x -> (weight x, x)) (stepFn val)) (S.insert val visited)
+      Nothing -> []
+    insertAll = foldr Data.Heap.insert
+
 neighbors4 :: Point -> [Point]
 neighbors4 (x, y) =
   [ (x - 1, y),
@@ -45,9 +63,12 @@ stepD stepFn = fn
 main :: IO ()
 main = do
   args <- getArgs
-  let [seed, tx, ty] = map (read @Int) args
+  let [seed, tx, ty, maxSteps] = map (read @Int) args
+      start = (1, 1)
       target = (tx, ty)
       step = stepD (stepPt seed)
-      result = bfs step fst (\(_, pt) -> pt == target) [(0, (1, 1))]
-  -- putStrLn $ intercalate "\n" $ map (\y -> map (\x -> if isWall seed (x, y) then '#' else '.') [0 .. 9]) [0 .. 6]
-  print result
+      part1 = bfs step fst (\(_, pt) -> pt == target) [(0, start)]
+      part2 = length $ nub $ map snd $ bfsToNum step fst maxSteps [(0, start)]
+  putStrLn $ intercalate "\n" $ map (\y -> map (\x -> if isWall seed (x, y) then '#' else '.') [0 .. 9]) [0 .. 6]
+  print part1
+  print part2
