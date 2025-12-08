@@ -32,4 +32,9 @@ main = do
   content <- readFile inputFile
   let discs = map parseLine $ lines content
       maxT = product $ map (\(_, n, _) -> n) discs
+      maxDisc = maximum $ map (\(n, _, _) -> n) discs
+      newDisc = (1 + maxDisc, 11, 0)
+      discs2 = discs ++ [newDisc]
+  print newDisc
   print $ find (`isBigSolution` discs) [0 .. maxT]
+  print $ find (`isBigSolution` discs2) [0 .. maxT * 11]
