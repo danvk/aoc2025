@@ -1,4 +1,4 @@
-module AocLib (minUsing, maxUsing, eraseChars, loudRead, mapReduce) where
+module AocLib (minUsing, maxUsing, eraseChars, loudRead, mapReduce, binarySearch) where
 
 import Data.Function
 import Data.List
@@ -24,3 +24,15 @@ mapReduce mapFn reduceFn xs = merged
     mapped = concatMap mapFn xs
     grouped = groupBy (\a b -> fst a == fst b) $ sortBy (compare `on` fst) mapped
     merged = map (\pcs -> (fst $ head pcs, reduceFn (fst $ head pcs) (map snd pcs))) grouped
+
+-- Find an element x such that compareFn x == EQ using binary search.
+binarySearch :: (Integral a) => (a -> Ordering) -> (a, a) -> Maybe a
+binarySearch compareFn (x, y)
+  | x == y = if compareFn x == EQ then Just x else Nothing
+  | y < x = Nothing
+binarySearch compareFn (x, y) =
+  let mid = x + ((y - x) `div` 2)
+   in case compareFn mid of
+        LT -> binarySearch compareFn (x, mid - 1)
+        GT -> binarySearch compareFn (mid + 1, y)
+        EQ -> Just mid
