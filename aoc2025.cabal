@@ -234,3 +234,8 @@ executable y2016d14
     import: warnings, common-extensions
     main-is: y2016d14/Main.hs
     build-depends: lib, cryptohash-md5>=0.11.101.0,bytestring>=0.12.2.0,base16-bytestring>=1.0.2.0
+
+executable y2016d15
+    import: warnings, common-extensions
+    main-is: y2016d15/Main.hs
+    build-depends: lib
