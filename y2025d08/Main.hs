@@ -59,10 +59,8 @@ main = do
       g = toEdges ds
       comps = connectedComponents g
       compSize = length $ head comps
-  -- biggest = take 3 $ sortBy (flip compare `on` length) comps
-  -- part1 = product $ map length biggest
-  -- print g
-  -- print comps
-  -- print biggest
+      biggest = take 3 $ sortBy (flip compare `on` length) comps
+      part1 = product $ map length biggest
+  print part1
   print $ Data.Bifunctor.bimap (pts !!) (pts !!) (last ds)
   print (compSize, totalPoints)
