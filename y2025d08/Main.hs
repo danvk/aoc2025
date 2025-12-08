@@ -1,6 +1,7 @@
 -- https://adventofcode.com/2025/day/8
 
 import AocLib
+import Data.Bifunctor qualified
 import Data.Function
 import Data.List
 import Data.List.Split
@@ -53,12 +54,15 @@ main = do
       numPoints = (read @Int) (args !! 1)
   content <- readFile inputFile
   let pts = zip [0 :: Int ..] $ map parsePoint $ lines content
+      totalPoints = length pts
       ds = take numPoints $ map snd $ sort [(dist p1 p2, (i, j)) | (i, p1) <- pts, (j, p2) <- pts, i < j]
       g = toEdges ds
       comps = connectedComponents g
-      biggest = take 3 $ sortBy (flip compare `on` length) comps
-      part1 = product $ map length biggest
-  print g
-  print comps
-  print biggest
-  print part1
+      compSize = length $ head comps
+  -- biggest = take 3 $ sortBy (flip compare `on` length) comps
+  -- part1 = product $ map length biggest
+  -- print g
+  -- print comps
+  -- print biggest
+  print $ Data.Bifunctor.bimap (pts !!) (pts !!) (last ds)
+  print (compSize, totalPoints)
