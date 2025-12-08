@@ -4,6 +4,7 @@ import AocLib
 import Data.List
 import Data.List.Split
 import Data.Map.Strict qualified as M
+import Data.Set qualified as S
 import Data.Tuple
 import System.Environment (getArgs)
 
@@ -22,13 +23,37 @@ toEdges pairs = M.fromList edges
   where
     edges = mapReduce (\ab -> [ab, swap ab]) (\_ b -> b) pairs
 
+floodFill :: (Ord a) => (a -> [a]) -> [a] -> [a]
+floodFill neighborFn starts = go starts S.empty
+  where
+    go [] _ = []
+    go (x : xs) visited =
+      if x `S.member` visited
+        then
+          go xs visited
+        else
+          x : go (neighborFn x ++ xs) (S.insert x visited)
+
+connectedComponents :: (Ord a) => M.Map a [a] -> [[a]]
+connectedComponents g = go nodes
+  where
+    nodes = M.keys g
+    neighbors n = g M.! n
+    go [] = []
+    go (x : xs) = component : go remainder
+      where
+        component = floodFill neighbors [x]
+        remainder = filter (`notElem` component) xs
+
 main :: IO ()
 main = do
   args <- getArgs
   let inputFile = head args
       numPoints = (read @Int) (args !! 1)
   content <- readFile inputFile
-  let pts = zip [0 ..] $ map parsePoint $ lines content
+  let pts = zip [0 :: Int ..] $ map parsePoint $ lines content
       ds = take numPoints $ map snd $ sort [(dist p1 p2, (i, j)) | (i, p1) <- pts, (j, p2) <- pts, i < j]
       g = toEdges ds
+      comps = connectedComponents g
   print g
+  print comps
