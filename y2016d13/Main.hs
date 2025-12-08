@@ -3,6 +3,7 @@
 
 import Data.Bits
 import Data.Heap qualified
+import Data.Set qualified as S
 import Grid
 import System.Environment (getArgs)
 
@@ -11,15 +12,17 @@ isWall seed (x, y)
   | x < 0 || y < 0 = True
   | otherwise = odd $ popCount (seed + x * x + 3 * x + 2 * x * y + y + y * y)
 
--- TODO: avoid backtracking
-bfs :: (a -> [a]) -> (a -> Int) -> (a -> Bool) -> [a] -> Maybe a
-bfs stepFn weight done starts = go initHeap
+bfs :: (Ord a) => (a -> [a]) -> (a -> Int) -> (a -> Bool) -> [a] -> Maybe a
+bfs stepFn weight done starts = go initHeap S.empty
   where
     initList = zip (map weight starts) starts
     initHeap = Data.Heap.fromList initList `asTypeOf` (undefined :: Data.Heap.MinPrioHeap Int a)
-    go h = case Data.Heap.view h of
+    go h visited = case Data.Heap.view h of
       Just ((_, val), rest) ->
-        if done val then Just val else go (insertAll rest $ map (\x -> (weight x, x)) (stepFn val))
+        if val `S.member` visited
+          then go rest visited
+          else
+            if done val then Just val else go (insertAll rest $ map (\x -> (weight x, x)) (stepFn val)) (S.insert val visited)
       Nothing -> Nothing
     insertAll = foldr Data.Heap.insert
 
