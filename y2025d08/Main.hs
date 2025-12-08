@@ -1,11 +1,12 @@
 -- https://adventofcode.com/2025/day/8
 
 import AocLib
-import Data.Bifunctor qualified
+import Data.Bifunctor
 import Data.Function
 import Data.List
 import Data.List.Split
 import Data.Map.Strict qualified as M
+import Data.Maybe (fromJust)
 import Data.Set qualified as S
 import Data.Tuple
 import System.Environment (getArgs)
@@ -20,8 +21,8 @@ parsePoint str = case splitOn "," str of
   [x, y, z] -> (read x, read y, read z)
   _ -> error $ "Unable to parse " ++ str
 
-toEdges :: (Ord a) => [(a, a)] -> M.Map a [a]
-toEdges pairs = M.fromList edges
+fromEdges :: (Ord a) => [(a, a)] -> M.Map a [a]
+fromEdges pairs = M.fromList edges
   where
     edges = mapReduce (\ab -> [ab, swap ab]) (\_ b -> b) pairs
 
@@ -47,6 +48,9 @@ connectedComponents g = go nodes
         component = floodFill neighbors [x]
         remainder = filter (`notElem` component) xs
 
+componentSize :: [(Int, Int)] -> Int
+componentSize = length . head . connectedComponents . fromEdges
+
 main :: IO ()
 main = do
   args <- getArgs
@@ -55,12 +59,14 @@ main = do
   content <- readFile inputFile
   let pts = zip [0 :: Int ..] $ map parsePoint $ lines content
       totalPoints = length pts
-      ds = take numPoints $ map snd $ sort [(dist p1 p2, (i, j)) | (i, p1) <- pts, (j, p2) <- pts, i < j]
-      g = toEdges ds
+      pairs = map snd $ sort [(dist p1 p2, (i, j)) | (i, p1) <- pts, (j, p2) <- pts, i < j]
+      ds = take numPoints $ pairs
+      g = fromEdges ds
       comps = connectedComponents g
-      compSize = length $ head comps
       biggest = take 3 $ sortBy (flip compare `on` length) comps
       part1 = product $ map length biggest
+      part2idx = fromJust $ find (\n -> componentSize (take n pairs) == totalPoints) [1 ..]
+      ((_, (x1, _, _)), (_, (x2, _, _))) = bimap (pts !!) (pts !!) $ pairs !! (part2idx - 1)
+      part2 = x1 * x2
   print part1
-  print $ Data.Bifunctor.bimap (pts !!) (pts !!) (last ds)
-  print (compSize, totalPoints)
+  print part2
