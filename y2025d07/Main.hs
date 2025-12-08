@@ -1,6 +1,6 @@
 -- https://adventofcode.com/2025/day/7
 
-import Data.Function
+import AocLib
 import Data.List
 import Data.Map.Strict qualified as M
 import Grid
@@ -23,13 +23,6 @@ step g (splits, beams) = (splits + new_splits, new_beams)
     nexts = map (stepBeam g) beams
     new_beams = nub $ concatMap snd nexts
     new_splits = sum $ map fst nexts
-
-mapReduce :: (Ord b) => (a -> [(b, c)]) -> (b -> [c] -> d) -> [a] -> [(b, d)]
-mapReduce mapFn reduceFn xs = merged
-  where
-    mapped = concatMap mapFn xs
-    grouped = groupBy (\a b -> fst a == fst b) $ sortBy (compare `on` fst) mapped
-    merged = map (\pcs -> (fst $ head pcs, reduceFn (fst $ head pcs) (map snd pcs))) grouped
 
 -- (point, # of ways to get there)
 step2 :: Grid -> [(Point, Int)] -> [(Point, Int)]

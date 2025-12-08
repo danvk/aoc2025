@@ -1,7 +1,10 @@
 -- https://adventofcode.com/2025/day/8
 
+import AocLib
 import Data.List
 import Data.List.Split
+import Data.Map.Strict qualified as M
+import Data.Tuple
 import System.Environment (getArgs)
 
 type Point = (Int, Int, Int)
@@ -14,11 +17,18 @@ parsePoint str = case splitOn "," str of
   [x, y, z] -> (read x, read y, read z)
   _ -> error $ "Unable to parse " ++ str
 
+toEdges :: (Ord a) => [(a, a)] -> M.Map a [a]
+toEdges pairs = M.fromList edges
+  where
+    edges = mapReduce (\ab -> [ab, swap ab]) (\_ b -> b) pairs
+
 main :: IO ()
 main = do
   args <- getArgs
   let inputFile = head args
+      numPoints = (read @Int) (args !! 1)
   content <- readFile inputFile
   let pts = map parsePoint $ lines content
-      ds = take 2 $ sort [(dist p1 p2, p1, p2) | p1 <- pts, p2 <- pts, p1 < p2]
-  print ds
+      ds = take numPoints $ map snd $ sort [(dist p1 p2, (p1, p2)) | p1 <- pts, p2 <- pts, p1 < p2]
+      g = toEdges ds
+  print g
