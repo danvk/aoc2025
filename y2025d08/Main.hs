@@ -28,7 +28,7 @@ main = do
   let inputFile = head args
       numPoints = (read @Int) (args !! 1)
   content <- readFile inputFile
-  let pts = map parsePoint $ lines content
-      ds = take numPoints $ map snd $ sort [(dist p1 p2, (p1, p2)) | p1 <- pts, p2 <- pts, p1 < p2]
+  let pts = zip [0 ..] $ map parsePoint $ lines content
+      ds = take numPoints $ map snd $ sort [(dist p1 p2, (i, j)) | (i, p1) <- pts, (j, p2) <- pts, i < j]
       g = toEdges ds
   print g
