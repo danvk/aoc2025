@@ -1,6 +1,7 @@
 -- https://adventofcode.com/2025/day/8
 
 import AocLib
+import Data.Function
 import Data.List
 import Data.List.Split
 import Data.Map.Strict qualified as M
@@ -55,5 +56,9 @@ main = do
       ds = take numPoints $ map snd $ sort [(dist p1 p2, (i, j)) | (i, p1) <- pts, (j, p2) <- pts, i < j]
       g = toEdges ds
       comps = connectedComponents g
+      biggest = take 3 $ sortBy (flip compare `on` length) comps
+      part1 = product $ map length biggest
   print g
   print comps
+  print biggest
+  print part1
