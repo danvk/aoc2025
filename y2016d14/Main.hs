@@ -8,7 +8,14 @@ import Data.Maybe
 import System.Environment (getArgs)
 
 saltedMd5 :: String -> Int -> String
-saltedMd5 salt x = B.unpack $ encode $ hash $ B.pack $ salt ++ show x
+saltedMd5 salt x = md5str $ salt ++ show x
+
+md5str :: String -> String
+md5str = B.unpack . encode . hash . B.pack
+
+-- TODO: try writing this point-free
+stretchedHash :: String -> Int -> String
+stretchedHash salt n = iterate md5str (saltedMd5 salt n) !! 2016
 
 findTriple :: String -> Maybe Char
 findTriple (a : b : c : _)
@@ -38,3 +45,6 @@ main = do
   let hashes = zip [0 ..] $ map (saltedMd5 salt) [0 ..]
       part1 = filterToKeys hashes !! 63
   print part1
+  let hashes2 = zip [0 ..] $ map (stretchedHash salt) [0 ..]
+      part2 = filterToKeys hashes2 !! 63
+  print part2
