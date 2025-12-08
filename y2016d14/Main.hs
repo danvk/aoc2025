@@ -13,21 +13,17 @@ saltedMd5 salt x = md5str $ salt ++ show x
 md5str :: String -> String
 md5str = B.unpack . encode . hash . B.pack
 
--- TODO: try writing this point-free
 stretchedHash :: String -> Int -> String
 stretchedHash salt n = iterate md5str (saltedMd5 salt n) !! 2016
+
+-- I find the "point-free" style here to be more confusing:
+-- stretchedHash salt = (!! 2016) . iterate md5str . saltedMd5 salt
 
 findTriple :: String -> Maybe Char
 findTriple (a : b : c : _)
   | a == b && b == c = Just a
 findTriple (_ : xs) = findTriple xs
 findTriple [] = Nothing
-
--- firstJust :: (a -> Maybe b) -> [a] -> Maybe (a, b)
--- firstJust _ [] = Nothing
--- firstJust f (x : xs) = case f x of
---   (Just y) -> Just (x, y)
---   Nothing -> firstJust f xs
 
 filterToKeys :: [(Int, String)] -> [(Int, String)]
 filterToKeys [] = []
