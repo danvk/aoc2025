@@ -1,7 +1,6 @@
 -- https://adventofcode.com/2025/day/8
 
 import AocLib
-import Control.Applicative
 import Data.Bifunctor
 import Data.Function
 import Data.List
@@ -52,18 +51,6 @@ connectedComponents g = go nodes
 componentSize :: [(Int, Int)] -> Int
 componentSize = length . head . connectedComponents . fromEdges
 
--- Find the smallest x such that compareFn x == EQ using binary search
-lowerBound :: (Integral a) => (a -> Ordering) -> (a, a) -> Maybe a
-lowerBound compareFn (x, y)
-  | x > y = Nothing
-  | x == y = if compareFn x == EQ then Just x else Nothing
-  | otherwise =
-      let mid = x + ((y - x) `div` 2)
-       in case compareFn mid of
-            LT -> lowerBound compareFn (mid + 1, y)
-            GT -> lowerBound compareFn (x, mid - 1)
-            EQ -> lowerBound compareFn (x, mid - 1) <|> Just mid
-
 main :: IO ()
 main = do
   args <- getArgs
@@ -73,10 +60,8 @@ main = do
   let pts = zip [0 :: Int ..] $ map parsePoint $ lines content
       totalPoints = length pts
       pairs = map snd $ sort [(dist p1 p2, (i, j)) | (i, p1) <- pts, (j, p2) <- pts, i < j]
-      ds = take numPoints pairs
-      g = fromEdges ds
-      comps = connectedComponents g
-      biggest = take 3 $ sortBy (flip compare `on` length) comps
+      comps1 = connectedComponents $ fromEdges $ take numPoints pairs
+      biggest = take 3 $ sortBy (flip compare `on` length) comps1
       part1 = product $ map length biggest
       part2idx = fromJust $ lowerBound (\n -> componentSize (take n pairs) `compare` totalPoints) (1, length pairs)
       ((_, (x1, _, _)), (_, (x2, _, _))) = bimap (pts !!) (pts !!) $ pairs !! (part2idx - 1)

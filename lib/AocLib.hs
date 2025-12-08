@@ -1,5 +1,6 @@
-module AocLib (minUsing, maxUsing, eraseChars, loudRead, mapReduce, binarySearch) where
+module AocLib (minUsing, maxUsing, eraseChars, loudRead, mapReduce, binarySearch, lowerBound) where
 
+import Control.Applicative
 import Data.Function
 import Data.List
 import Text.Read (readMaybe)
@@ -36,3 +37,15 @@ binarySearch compareFn (x, y) =
         LT -> binarySearch compareFn (x, mid - 1)
         GT -> binarySearch compareFn (mid + 1, y)
         EQ -> Just mid
+
+-- Find the smallest x such that compareFn x == EQ using binary search
+lowerBound :: (Integral a) => (a -> Ordering) -> (a, a) -> Maybe a
+lowerBound compareFn (x, y)
+  | x > y = Nothing
+  | x == y = if compareFn x == EQ then Just x else Nothing
+  | otherwise =
+      let mid = x + ((y - x) `div` 2)
+       in case compareFn mid of
+            LT -> lowerBound compareFn (mid + 1, y)
+            GT -> lowerBound compareFn (x, mid - 1)
+            EQ -> lowerBound compareFn (x, mid - 1) <|> Just mid
