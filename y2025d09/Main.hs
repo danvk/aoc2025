@@ -38,6 +38,9 @@ strokePathForTesting pts = g'
 isInteriorPt :: M.Map Int [Int] -> Point -> Bool
 isInteriorPt testPtsByX (x, y) = odd $ length $ filter (< y) $ M.findWithDefault [] x testPtsByX
 
+perimeter :: Point -> Point -> [Point]
+perimeter (x1, y1) (x2, y2) = [(x, y) | x <- [min x1 x2 .. max x1 x2], y <- [min y1 y2, max y1 y2]]
+
 main :: IO ()
 main = do
   args <- getArgs
@@ -53,22 +56,25 @@ main = do
       testPtsByX = M.fromList $ map (\(x, xys) -> (x, sort $ map snd xys)) $ groupByFn fst testPts
       -- g' = M.fromList $ map (,'X') testPts
       g' = strokePath g pts
-      interior = M.fromList [((x, y), '#') | x <- [0 .. (fst dims)], y <- [0 .. (snd dims)], charAtPoint g' (x, y) == '.', isInteriorPt testPtsByX (x, y)]
+      part2 = maximum $ [area p1 p2 | p1 <- pts, p2 <- pts, p1 < p2, all (\p -> charAtPoint g' p /= '.' || isInteriorPt testPtsByX p) (perimeter p1 p2)]
+  -- interior = M.fromList [((x, y), '#') | x <- [0 .. (fst dims)], y <- [0 .. (snd dims)], charAtPoint g' (x, y) == '.', isInteriorPt testPtsByX (x, y)]
   -- intPt = (intX, intY) -- interior point; TODO: find this
   -- intPts = floodFill (\pt -> [n | n <- neighbors4 pt, charAtPoint g' n == '.']) [intPt]
   -- g'' = M.union g' (M.fromList $ map (,'x') intPts)
   print part1
-  print $ length g
-  print $ length g'
-  print $ length testPtsByX
+  print part2
 
-  -- print $ length g''
+-- print $ length g
+-- print $ length g'
+-- print $ length testPtsByX
 
-  putStrLn $ gridToStr dims g
-  putStrLn ""
-  putStrLn $ gridToStr dims g'
-  print testPtsByX
-  putStrLn $ gridToStr dims interior
+-- print $ length g''
+
+-- putStrLn $ gridToStr dims g
+-- putStrLn ""
+-- putStrLn $ gridToStr dims g'
+-- print testPtsByX
+-- putStrLn $ gridToStr dims interior
 
 --- putStrLn ""
 
