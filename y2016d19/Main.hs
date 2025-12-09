@@ -2,6 +2,7 @@
 
 import Data.List
 import Data.Map.Strict qualified as M
+import Debug.Trace
 import System.Environment (getArgs)
 
 -- whose turn, elf -> next elf, elf -> num presents
@@ -17,7 +18,7 @@ step (idx, nexts, presents) = (nextNext, nextNexts, nextPresents)
     nextPresents = M.adjust (numStolen +) idx (M.delete next presents)
 
 step2 :: State -> State
-step2 (idx, nexts, presents) = do (nextElf, nextNexts, nextPresents)
+step2 (idx, nexts, presents) = trace ("target: " ++ show next) (nextElf, nextNexts, nextPresents)
   where
     numElves = length nexts
     numAdvance = numElves `div` 2
