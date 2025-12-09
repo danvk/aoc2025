@@ -2,7 +2,6 @@
 
 import Data.List.Split
 import Data.Map.Strict qualified as M
-import Data.Set qualified as S
 import Grid
 import System.Environment (getArgs)
 
@@ -24,47 +23,41 @@ strokePath initG pts = g'
       | otherwise = error "Invalid pair"
     g' = foldr stroke initG pairs
 
-floodFill :: (Ord a) => (a -> [a]) -> [a] -> [a]
-floodFill neighborFn starts = go starts S.empty
+strokePathForTesting :: [Point] -> Grid
+strokePathForTesting pts = g'
   where
-    go [] _ = []
-    go (x : xs) visited =
-      if x `S.member` visited
-        then
-          go xs visited
-        else
-          x : go (neighborFn x ++ xs) (S.insert x visited)
-
-neighbors4 :: Point -> [Point]
-neighbors4 (x, y) =
-  [ (x - 1, y),
-    (x + 1, y),
-    (x, y - 1),
-    (x, y + 1)
-  ]
+    pairs = zip pts $ tail pts ++ [head pts]
+    stroke ((x1, y1), (x2, y2)) g
+      | x1 == x2 = g
+      | y1 == y2 = M.union g (M.fromList [((x, y1), 'X') | x <- [min x1 x2 .. max x1 x2 - 1]])
+      | otherwise = error "Invalid pair"
+    g' = foldr stroke M.empty pairs
 
 main :: IO ()
 main = do
   args <- getArgs
   let inputFile = head args
-      (intX, intY) = ((read @Int) (args !! 1), (read @Int) (args !! 2))
+  -- (intX, intY) = ((read @Int) (args !! 1), (read @Int) (args !! 2))
   content <- readFile inputFile
   let pts = map parseLine $ lines content
       part1 = maximum $ [area p1 p2 | p1 <- pts, p2 <- pts, p1 < p2]
       (xs, ys) = unzip pts
       dims = (1 + maximum xs, 1 + maximum ys)
       g = M.fromList [(pt, '#') | pt <- pts]
-      g' = strokePath g pts
-      intPt = (intX, intY) -- interior point; TODO: find this
-      intPts = floodFill (\pt -> [n | n <- neighbors4 pt, charAtPoint g' n == '.']) [intPt]
-      g'' = M.union g' (M.fromList $ map (,'x') intPts)
+      g' = strokePathForTesting pts
+  -- intPt = (intX, intY) -- interior point; TODO: find this
+  -- intPts = floodFill (\pt -> [n | n <- neighbors4 pt, charAtPoint g' n == '.']) [intPt]
+  -- g'' = M.union g' (M.fromList $ map (,'x') intPts)
   print part1
   print $ length g
   print $ length g'
-  print $ length g''
+
+-- print $ length g''
 
 -- putStrLn $ gridToStr dims g
 -- putStrLn ""
 -- putStrLn $ gridToStr dims g'
--- putStrLn ""
+
+--- putStrLn ""
+
 -- putStrLn $ gridToStr dims g''
