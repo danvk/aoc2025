@@ -13,7 +13,7 @@ parseLine str = case splitOn "," str of
   _ -> error $ "Unable to parse " ++ str
 
 area :: Point -> Point -> Int
-area (x1, y1) (x2, y2) = (x2 - x1 + 1) * (y2 - y1 + 1)
+area (x1, y1) (x2, y2) = (abs (x2 - x1) + 1) * (abs (y2 - y1) + 1)
 
 strokePath :: Grid -> [Point] -> Grid
 strokePath initG pts = g'
@@ -39,7 +39,9 @@ isInteriorPt :: M.Map Int [Int] -> Point -> Bool
 isInteriorPt testPtsByX (x, y) = odd $ length $ filter (< y) $ M.findWithDefault [] x testPtsByX
 
 perimeter :: Point -> Point -> [Point]
-perimeter (x1, y1) (x2, y2) = [(x, y) | x <- [min x1 x2 .. max x1 x2], y <- [min y1 y2, max y1 y2]]
+perimeter (x1, y1) (x2, y2) =
+  [(x, y) | x <- [min x1 x2 .. max x1 x2], y <- [min y1 y2, max y1 y2]]
+    ++ [(x, y) | x <- [min x1 x2, max x1 x2], y <- [min y1 y2 .. max y1 y2]]
 
 main :: IO ()
 main = do
@@ -53,16 +55,33 @@ main = do
       dims = (1 + maximum xs, 1 + maximum ys)
       g = M.fromList [(pt, '#') | pt <- pts]
       testPts = strokePathForTesting pts
-      testPtsByX = M.fromList $ map (\(x, xys) -> (x, sort $ map snd xys)) $ groupByFn fst testPts
+      testPtsByX = M.fromList $ map (\(x, xys) -> (x, nub $ sort $ map snd xys)) $ groupByFn fst testPts
       -- g' = M.fromList $ map (,'X') testPts
       g' = strokePath g pts
-      part2 = maximum $ [area p1 p2 | p1 <- pts, p2 <- pts, p1 < p2, all (\p -> charAtPoint g' p /= '.' || isInteriorPt testPtsByX p) (perimeter p1 p2)]
+      -- (p1, p2) = ((15846, 83261), (85117, 16884))
+      -- perim = perimeter p1 p2
+      -- perimPts = filter (\p -> charAtPoint g' p == '#') perim
+      -- perimStrokes = filter (\p -> charAtPoint g' p == 'X') perim
+      -- perimValid = all (\p -> charAtPoint g' p /= '.' || isInteriorPt testPtsByX p) (perimeter p1 p2)
+      rects = sortOn (uncurry area) [(p1, p2) | p1 <- pts, p2 <- pts, p1 < p2]
+      part2 = filter (\(p1, p2) -> all (\p -> charAtPoint g' p /= '.' || isInteriorPt testPtsByX p) (perimeter p1 p2)) rects
   -- interior = M.fromList [((x, y), '#') | x <- [0 .. (fst dims)], y <- [0 .. (snd dims)], charAtPoint g' (x, y) == '.', isInteriorPt testPtsByX (x, y)]
   -- intPt = (intX, intY) -- interior point; TODO: find this
   -- intPts = floodFill (\pt -> [n | n <- neighbors4 pt, charAtPoint g' n == '.']) [intPt]
   -- g'' = M.union g' (M.fromList $ map (,'x') intPts)
   print part1
-  print part2
+  print $ zip (map (uncurry area) part2) part2
+
+-- print $ length perim
+-- print perimPts
+-- print $ length perimStrokes
+-- print perimValid
+
+-- print part2
+
+-- print $ sum $ map length $ M.elems testPtsByX
+
+-- print $ tail $ zip (map (uncurry area) part2) part2
 
 -- print $ length g
 -- print $ length g'
