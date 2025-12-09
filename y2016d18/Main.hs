@@ -1,15 +1,24 @@
 -- https://adventofcode.com/2016/day/18
 import System.Environment (getArgs)
 
-parseLine :: String -> [String]
-parseLine str = case words str of
-  word:rest -> word:rest
-  _ -> error $ "Unable to parse " ++ str
+nextChar :: Char -> Char -> Char -> Char
+nextChar '^' '^' '.' = '^'
+nextChar '.' '^' '^' = '^'
+nextChar '^' '.' '.' = '^'
+nextChar '.' '.' '^' = '^'
+nextChar _ _ _ = '.'
+
+nextRow :: String -> String
+nextRow s = zipWith3 nextChar ('.' : s) s (tail s ++ ['.'])
 
 main :: IO ()
 main = do
   args <- getArgs
   let inputFile = head args
   content <- readFile inputFile
-  let x = map parseLine $ lines content
-  print x
+  let line1 = head $ lines content
+      n = 40
+      rows = take n $ iterate nextRow line1
+      part1 = length $ concatMap (filter ('.' ==)) rows
+  -- print rows
+  print part1
