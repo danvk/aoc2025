@@ -47,54 +47,15 @@ main :: IO ()
 main = do
   args <- getArgs
   let inputFile = head args
-  -- (intX, intY) = ((read @Int) (args !! 1), (read @Int) (args !! 2))
   content <- readFile inputFile
   let pts = map parseLine $ lines content
       part1 = maximum $ [area p1 p2 | p1 <- pts, p2 <- pts, p1 < p2]
-      (xs, ys) = unzip pts
-      dims = (1 + maximum xs, 1 + maximum ys)
       g = M.fromList [(pt, '#') | pt <- pts]
       testPts = strokePathForTesting pts
       testPtsByX = M.fromList $ map (\(x, xys) -> (x, nub $ sort $ map snd xys)) $ groupByFn fst testPts
-      -- g' = M.fromList $ map (,'X') testPts
       g' = strokePath g pts
-      -- (p1, p2) = ((15846, 83261), (85117, 16884))
-      -- perim = perimeter p1 p2
-      -- perimPts = filter (\p -> charAtPoint g' p == '#') perim
-      -- perimStrokes = filter (\p -> charAtPoint g' p == 'X') perim
-      -- perimValid = all (\p -> charAtPoint g' p /= '.' || isInteriorPt testPtsByX p) (perimeter p1 p2)
       rects = sortOn (uncurry area) [(p1, p2) | p1 <- pts, p2 <- pts, p1 < p2]
       part2 = filter (\(p1, p2) -> all (\p -> charAtPoint g' p /= '.' || isInteriorPt testPtsByX p) (perimeter p1 p2)) rects
-  -- interior = M.fromList [((x, y), '#') | x <- [0 .. (fst dims)], y <- [0 .. (snd dims)], charAtPoint g' (x, y) == '.', isInteriorPt testPtsByX (x, y)]
-  -- intPt = (intX, intY) -- interior point; TODO: find this
-  -- intPts = floodFill (\pt -> [n | n <- neighbors4 pt, charAtPoint g' n == '.']) [intPt]
-  -- g'' = M.union g' (M.fromList $ map (,'x') intPts)
+
   print part1
-  print $ zip (map (uncurry area) part2) part2
-
--- print $ length perim
--- print perimPts
--- print $ length perimStrokes
--- print perimValid
-
--- print part2
-
--- print $ sum $ map length $ M.elems testPtsByX
-
--- print $ tail $ zip (map (uncurry area) part2) part2
-
--- print $ length g
--- print $ length g'
--- print $ length testPtsByX
-
--- print $ length g''
-
--- putStrLn $ gridToStr dims g
--- putStrLn ""
--- putStrLn $ gridToStr dims g'
--- print testPtsByX
--- putStrLn $ gridToStr dims interior
-
---- putStrLn ""
-
--- putStrLn $ gridToStr dims g''
+  print $ last $ zip (map (uncurry area) part2) part2
