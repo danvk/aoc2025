@@ -1,6 +1,5 @@
 -- https://adventofcode.com/2025/day/9
 
-import Data.List
 import Data.List.Split
 import Data.Map.Strict qualified as M
 import Data.Set qualified as S
@@ -48,6 +47,7 @@ main :: IO ()
 main = do
   args <- getArgs
   let inputFile = head args
+      (intX, intY) = ((read @Int) (args !! 1), (read @Int) (args !! 2))
   content <- readFile inputFile
   let pts = map parseLine $ lines content
       part1 = maximum $ [area p1 p2 | p1 <- pts, p2 <- pts, p1 < p2]
@@ -55,7 +55,7 @@ main = do
       dims = (1 + maximum xs, 1 + maximum ys)
       g = M.fromList [(pt, '#') | pt <- pts]
       g' = strokePath g pts
-      intPt = (5, 4) -- interior point; TODO: find this
+      intPt = (intX, intY) -- interior point; TODO: find this
       intPts = floodFill (\pt -> [n | n <- neighbors4 pt, charAtPoint g' n == '.']) [intPt]
       g'' = M.union g' (M.fromList $ map (,'x') intPts)
   print part1
