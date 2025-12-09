@@ -2,7 +2,6 @@
 
 import Data.List
 import Data.Map.Strict qualified as M
-import Debug.Trace
 import System.Environment (getArgs)
 
 -- whose turn, elf -> next elf, elf -> num presents
@@ -40,7 +39,11 @@ main = do
   let numElves = (read @Int) (head args)
       nextElf = M.fromList $ zip (numElves : [1 .. (numElves - 1)]) [1 .. numElves]
       presents = M.fromList $ map (,1 :: Int) [1 .. numElves]
-      state = (1, numElves `div` 2, nextElf, presents)
-      states = iterate step2 state
-      part1 = find (\(_, _, n, _) -> length n == 1) states
+      state = (1, nextElf, presents)
+      states = iterate step state
+      part1 = find (\(_, _, n) -> length n == 1) states
   print part1
+  let state2 = (1, numElves `div` 2, nextElf, presents)
+      states2 = iterate step2 state2
+      part2 = find (\(_, _, n, _) -> length n == 1) states2
+  print part2
