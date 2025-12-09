@@ -34,8 +34,7 @@ step2 (attacker, preTarget, nexts, presents) =
     nextPresents = M.adjust (numStolen +) attacker (M.delete target presents)
     nextAttacker = nextNexts M.! attacker
     preTarget1 = nextNexts M.! preTarget
-    preTarget2 = nextNexts M.! preTarget1
-    nextPreTarget = if even numElves then preTarget1 else preTarget2
+    nextPreTarget = if even numElves then preTarget else preTarget1
 
 main :: IO ()
 main = do
