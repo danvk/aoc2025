@@ -44,14 +44,6 @@ bfsToNum stepFn weight maxCost starts = go initHeap S.empty
       Nothing -> []
     insertAll = foldr Data.Heap.insert
 
-neighbors4 :: Point -> [Point]
-neighbors4 (x, y) =
-  [ (x - 1, y),
-    (x + 1, y),
-    (x, y - 1),
-    (x, y + 1)
-  ]
-
 stepPt :: Int -> (Int, Int) -> [(Int, Int)]
 stepPt seed = filter (not . isWall seed) . neighbors4
 

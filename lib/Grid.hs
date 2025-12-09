@@ -1,4 +1,4 @@
-module Grid (Point, Size, Grid, parseGrid, gridToStr, charAtPoint, neighbors) where
+module Grid (Point, Size, Grid, parseGrid, gridToStr, charAtPoint, neighbors, neighbors4) where
 
 import Data.List
 import Data.Map.Strict qualified as M
@@ -35,4 +35,12 @@ neighbors (w, h) (x, y) =
       y' >= 0,
       y' < h,
       (x', y') /= (x, y)
+  ]
+
+neighbors4 :: Point -> [Point]
+neighbors4 (x, y) =
+  [ (x - 1, y),
+    (x + 1, y),
+    (x, y - 1),
+    (x, y + 1)
   ]

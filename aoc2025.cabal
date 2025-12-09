@@ -62,8 +62,9 @@ common common-extensions
 
 library lib
     import: warnings, common-extensions
-    exposed-modules: AocLib, Circuit, Grid
+    exposed-modules: AocLib, Circuit, Grid, Md5Lib
     hs-source-dirs: lib
+    build-depends: cryptohash-md5>=0.11.101.0,bytestring>=0.12.2.0,base16-bytestring>=1.0.2.0
 
 executable y2015d03
     import: warnings, common-extensions
@@ -253,7 +254,7 @@ executable y2016d16
 executable y2016d17
     import: warnings, common-extensions
     main-is: y2016d17/Main.hs
-    build-depends: lib
+    build-depends: lib, heap
 
 executable y2016d18
     import: warnings, common-extensions
