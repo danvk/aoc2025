@@ -2,7 +2,6 @@
 
 import Data.Heap qualified
 import Data.Maybe
-import Data.Set qualified as S
 import Grid
 import Md5Lib
 import System.Environment (getArgs)
@@ -32,16 +31,13 @@ step ((x, y), path) = nexts
 
 -- TODO: move this into lib
 bfs :: (Ord a) => (a -> [a]) -> (a -> Int) -> (a -> Bool) -> [a] -> Maybe a
-bfs stepFn weight done starts = go initHeap S.empty
+bfs stepFn weight done starts = go initHeap
   where
     initList = zip (map weight starts) starts
     initHeap = Data.Heap.fromList initList `asTypeOf` (undefined :: Data.Heap.MinPrioHeap Int a)
-    go h visited = case Data.Heap.view h of
+    go h = case Data.Heap.view h of
       Just ((_, val), rest) ->
-        if val `S.member` visited
-          then go rest visited
-          else
-            if done val then Just val else go (insertAll rest $ map (\x -> (weight x, x)) (stepFn val)) (S.insert val visited)
+        if done val then Just val else go (insertAll rest $ map (\x -> (weight x, x)) (stepFn val))
       Nothing -> Nothing
     insertAll = foldr Data.Heap.insert
 
