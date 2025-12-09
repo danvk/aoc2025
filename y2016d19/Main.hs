@@ -18,13 +18,14 @@ step (idx, nexts, presents) = (nextNext, nextNexts, nextPresents)
     nextPresents = M.adjust (numStolen +) idx (M.delete next presents)
 
 step2 :: State -> State
-step2 (idx, nexts, presents) = trace ("target: " ++ show next) (nextElf, nextNexts, nextPresents)
+step2 (idx, nexts, presents) = trace ("target: " ++ show next ++ " (n=" ++ show numElves ++ ")") (nextElf, nextNexts, nextPresents)
   where
     numElves = length nexts
     numAdvance = numElves `div` 2
     chain = iterate (nexts M.!) idx
-    seq3 = drop (numAdvance - 1) chain
-    [preNext, next, nextNext] = take 3 seq3
+    preNext = chain !! (numAdvance - 1)
+    next = nexts M.! preNext
+    nextNext = nexts M.! next
     nextNexts = M.insert preNext nextNext (M.delete next nexts)
     numStolen = presents M.! next
     nextPresents = M.adjust (numStolen +) idx (M.delete next presents)
