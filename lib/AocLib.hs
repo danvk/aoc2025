@@ -1,4 +1,4 @@
-module AocLib (minUsing, maxUsing, eraseChars, loudRead, mapReduce, binarySearch, lowerBound) where
+module AocLib (minUsing, maxUsing, eraseChars, loudRead, mapReduce, groupByFn, binarySearch, lowerBound) where
 
 import Control.Applicative
 import Data.Function
@@ -18,6 +18,9 @@ loudRead :: (Read a) => String -> a
 loudRead s = case readMaybe s of
   Just x -> x
   Nothing -> error $ "Unable to parse '" ++ s ++ "'"
+
+groupByFn :: (Ord b) => (a -> b) -> [a] -> [(b, [a])]
+groupByFn keyFn = mapReduce (\x -> [(keyFn x, x)]) (\_ x -> x)
 
 mapReduce :: (Ord b) => (a -> [(b, c)]) -> (b -> [c] -> d) -> [a] -> [(b, d)]
 mapReduce mapFn reduceFn xs = merged

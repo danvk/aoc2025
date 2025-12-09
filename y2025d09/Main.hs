@@ -1,5 +1,7 @@
 -- https://adventofcode.com/2025/day/9
 
+import AocLib
+import Data.List
 import Data.List.Split
 import Data.Map.Strict qualified as M
 import Grid
@@ -23,15 +25,15 @@ strokePath initG pts = g'
       | otherwise = error "Invalid pair"
     g' = foldr stroke initG pairs
 
-strokePathForTesting :: [Point] -> Grid
+strokePathForTesting :: [Point] -> [Point]
 strokePathForTesting pts = g'
   where
     pairs = zip pts $ tail pts ++ [head pts]
-    stroke ((x1, y1), (x2, y2)) g
-      | x1 == x2 = g
-      | y1 == y2 = M.union g (M.fromList [((x, y1), 'X') | x <- [min x1 x2 .. max x1 x2 - 1]])
+    stroke ((x1, y1), (x2, y2))
+      | x1 == x2 = []
+      | y1 == y2 = [(x, y1) | x <- [min x1 x2 .. max x1 x2 - 1]]
       | otherwise = error "Invalid pair"
-    g' = foldr stroke M.empty pairs
+    g' = concatMap stroke pairs
 
 main :: IO ()
 main = do
@@ -44,7 +46,10 @@ main = do
       (xs, ys) = unzip pts
       dims = (1 + maximum xs, 1 + maximum ys)
       g = M.fromList [(pt, '#') | pt <- pts]
-      g' = strokePathForTesting pts
+      testPts = strokePathForTesting pts
+      testPtsByX = map (\(x, xys) -> (x, sort $ map snd xys)) $ groupByFn fst testPts
+
+      g' = M.fromList $ map (,'X') testPts
   -- intPt = (intX, intY) -- interior point; TODO: find this
   -- intPts = floodFill (\pt -> [n | n <- neighbors4 pt, charAtPoint g' n == '.']) [intPt]
   -- g'' = M.union g' (M.fromList $ map (,'x') intPts)
@@ -52,11 +57,12 @@ main = do
   print $ length g
   print $ length g'
 
--- print $ length g''
+  -- print $ length g''
 
--- putStrLn $ gridToStr dims g
--- putStrLn ""
--- putStrLn $ gridToStr dims g'
+  putStrLn $ gridToStr dims g
+  putStrLn ""
+  putStrLn $ gridToStr dims g'
+  print testPtsByX
 
 --- putStrLn ""
 
