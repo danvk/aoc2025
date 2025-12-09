@@ -3,6 +3,7 @@
 import Data.List
 import Data.List.Split
 import Data.Map.Strict qualified as M
+import Data.Set qualified as S
 import Grid
 import System.Environment (getArgs)
 
@@ -24,6 +25,25 @@ strokePath initG pts = g'
       | otherwise = error "Invalid pair"
     g' = foldr stroke initG pairs
 
+floodFill :: (Ord a) => (a -> [a]) -> [a] -> [a]
+floodFill neighborFn starts = go starts S.empty
+  where
+    go [] _ = []
+    go (x : xs) visited =
+      if x `S.member` visited
+        then
+          go xs visited
+        else
+          x : go (neighborFn x ++ xs) (S.insert x visited)
+
+neighbors4 :: Point -> [Point]
+neighbors4 (x, y) =
+  [ (x - 1, y),
+    (x + 1, y),
+    (x, y - 1),
+    (x, y + 1)
+  ]
+
 main :: IO ()
 main = do
   args <- getArgs
@@ -35,17 +55,12 @@ main = do
       dims = (1 + maximum xs, 1 + maximum ys)
       g = M.fromList [(pt, '#') | pt <- pts]
       g' = strokePath g pts
+      intPt = (5, 4) -- interior point; TODO: find this
+      intPts = floodFill (\pt -> [n | n <- neighbors4 pt, charAtPoint g' n == '.']) [intPt]
+      g'' = M.union g' (M.fromList $ map (,'x') intPts)
   print part1
   putStrLn $ gridToStr dims g
   putStrLn ""
   putStrLn $ gridToStr dims g'
-
--- any more efficient way to go from [(a,b)] -> ([a], [b])?
--- xs = map fst pts
--- ys = map snd pts
--- (xs, ys) = unzip pts  -- <-- yes!
--- print $ length pts
--- print (minimum xs, maximum xs)
--- print (minimum ys, maximum ys)
--- print (length $ nub xs)
--- print (length $ nub ys)
+  putStrLn ""
+  putStrLn $ gridToStr dims g''
