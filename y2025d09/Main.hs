@@ -4,6 +4,7 @@ import AocLib
 import Data.List
 import Data.List.Split
 import Data.Map.Strict qualified as M
+import Data.Ord qualified
 import Grid
 import System.Environment (getArgs)
 
@@ -54,8 +55,8 @@ main = do
       testPts = strokePathForTesting pts
       testPtsByX = M.fromList $ map (\(x, xys) -> (x, nub $ sort $ map snd xys)) $ groupByFn fst testPts
       g' = strokePath g pts
-      rects = sortOn (uncurry area) [(p1, p2) | p1 <- pts, p2 <- pts, p1 < p2]
+      rects = sortOn (Data.Ord.Down . uncurry area) ([(p1, p2) | p1 <- pts, p2 <- pts, p1 < p2])
       part2 = filter (\(p1, p2) -> all (\p -> charAtPoint g' p /= '.' || isInteriorPt testPtsByX p) (perimeter p1 p2)) rects
 
   print part1
-  print $ last $ zip (map (uncurry area) part2) part2
+  print $ head $ zip (map (uncurry area) part2) part2
