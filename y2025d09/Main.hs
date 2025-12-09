@@ -35,6 +35,9 @@ strokePathForTesting pts = g'
       | otherwise = error "Invalid pair"
     g' = concatMap stroke pairs
 
+isInteriorPt :: M.Map Int [Int] -> Point -> Bool
+isInteriorPt testPtsByX (x, y) = odd $ length $ filter (< y) $ M.findWithDefault [] x testPtsByX
+
 main :: IO ()
 main = do
   args <- getArgs
@@ -47,15 +50,17 @@ main = do
       dims = (1 + maximum xs, 1 + maximum ys)
       g = M.fromList [(pt, '#') | pt <- pts]
       testPts = strokePathForTesting pts
-      testPtsByX = map (\(x, xys) -> (x, sort $ map snd xys)) $ groupByFn fst testPts
-
-      g' = M.fromList $ map (,'X') testPts
+      testPtsByX = M.fromList $ map (\(x, xys) -> (x, sort $ map snd xys)) $ groupByFn fst testPts
+      -- g' = M.fromList $ map (,'X') testPts
+      g' = strokePath g pts
+      interior = M.fromList [((x, y), '#') | x <- [0 .. (fst dims)], y <- [0 .. (snd dims)], charAtPoint g' (x, y) == '.', isInteriorPt testPtsByX (x, y)]
   -- intPt = (intX, intY) -- interior point; TODO: find this
   -- intPts = floodFill (\pt -> [n | n <- neighbors4 pt, charAtPoint g' n == '.']) [intPt]
   -- g'' = M.union g' (M.fromList $ map (,'x') intPts)
   print part1
   print $ length g
   print $ length g'
+  print $ length testPtsByX
 
   -- print $ length g''
 
@@ -63,6 +68,7 @@ main = do
   putStrLn ""
   putStrLn $ gridToStr dims g'
   print testPtsByX
+  putStrLn $ gridToStr dims interior
 
 --- putStrLn ""
 
