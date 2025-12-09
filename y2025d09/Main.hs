@@ -59,8 +59,12 @@ main = do
       intPts = floodFill (\pt -> [n | n <- neighbors4 pt, charAtPoint g' n == '.']) [intPt]
       g'' = M.union g' (M.fromList $ map (,'x') intPts)
   print part1
-  putStrLn $ gridToStr dims g
-  putStrLn ""
-  putStrLn $ gridToStr dims g'
-  putStrLn ""
-  putStrLn $ gridToStr dims g''
+  print $ length g
+  print $ length g'
+  print $ length g''
+
+-- putStrLn $ gridToStr dims g
+-- putStrLn ""
+-- putStrLn $ gridToStr dims g'
+-- putStrLn ""
+-- putStrLn $ gridToStr dims g''
