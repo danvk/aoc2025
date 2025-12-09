@@ -22,9 +22,7 @@ step (idx, nexts, presents) = (nextNext, nextNexts, nextPresents)
 
 step2 :: State2 -> State2
 step2 (attacker, preTarget, nexts, presents) =
-  trace
-    ("target: " ++ show target ++ " (n=" ++ show numElves ++ ")")
-    (nextAttacker, nextPreTarget, nextNexts, nextPresents)
+  (nextAttacker, nextPreTarget, nextNexts, nextPresents)
   where
     numElves = length nexts
     target = nexts M.! preTarget
