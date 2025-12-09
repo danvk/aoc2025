@@ -27,5 +27,16 @@ main = do
   let inputFile = head args
   content <- readFile inputFile
   let ranges = sort $ map parseLine $ lines content
-      part1 = 1 + snd (head $ shrinkRanges ranges)
+      mergedRanges = shrinkRanges ranges
+      part1 = 1 + snd (head mergedRanges)
+      included = zip (map snd mergedRanges) (tail $ map fst mergedRanges)
+      part2 = sum $ map (\(a, b) -> b - a - 1) included
   print part1
+  print part2
+
+-- print $ head mergedRanges
+-- print $ last mergedRanges
+-- print $ take 3 mergedRanges
+-- print $ take 3 included
+-- print $ reverse $ take 3 $ reverse mergedRanges
+-- print $ last included
