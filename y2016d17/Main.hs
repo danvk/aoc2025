@@ -41,6 +41,19 @@ bfs stepFn weight done starts = go initHeap
       Nothing -> Nothing
     insertAll = foldr Data.Heap.insert
 
+bfsAll :: (Ord a) => (a -> [a]) -> (a -> Int) -> (a -> Bool) -> [a] -> [a]
+bfsAll stepFn weight done starts = go initHeap
+  where
+    initList = zip (map weight starts) starts
+    initHeap = Data.Heap.fromList initList `asTypeOf` (undefined :: Data.Heap.MinPrioHeap Int a)
+    go h = case Data.Heap.view h of
+      Just ((_, val), rest) ->
+        if done val
+          then val : go rest
+          else go (insertAll rest $ map (\x -> (weight x, x)) (stepFn val))
+      Nothing -> []
+    insertAll = foldr Data.Heap.insert
+
 main :: IO ()
 main = do
   args <- getArgs
@@ -48,5 +61,8 @@ main = do
       state = ((0, 0), seed)
       soln = snd . fromJust $ bfs step (length . snd) ((==) (3, 3) . fst) [state]
       part1 = drop (length seed) soln
+      soln2 = snd . last $ bfsAll step (length . snd) ((==) (3, 3) . fst) [state]
+      part2 = length $ drop (length seed) soln2
   print state
   print part1
+  print part2
