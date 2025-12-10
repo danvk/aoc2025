@@ -4,6 +4,7 @@ import AocLib
 import Data.Bits
 import Data.List.Split
 import Data.Map.Strict qualified as M
+import Debug.Trace
 import System.Environment (getArgs)
 
 data Machine = Machine
@@ -49,15 +50,61 @@ machineToEq m = (2 ^ length (buttons m) - 1, eqs)
     pairs = zip [0 :: Int ..] btns
     bitmaskForIndex i = sum $ [if b .&. (1 `shiftL` i) > 0 then 2 ^ j else 0 | (j, b) <- pairs]
 
+-- all the ways that N numbers can sum to S
+waysToSum :: Int -> Int -> [[Int]] -- S -> N -> list
+waysToSum 0 0 = [[]]
+waysToSum 0 n = [replicate n 0]
+waysToSum _ 0 = []
+waysToSum s n = concat [map (a :) $ waysToSum (s - a) (n - 1) | a <- [0 .. s]]
+
+largestBit :: Int -> Int
+largestBit 1 = 0
+largestBit n = 1 + largestBit (n `div` 2)
+
+toBits :: Int -> [Int]
+toBits 0 = []
+toBits n = go 0 n
+  where
+    go _ 0 = []
+    go i x = if x .&. (1 `shiftL` i) > 0 then i : go (i + 1) (x - (1 `shiftL` i)) else go (i + 1) x
+
+substitute :: [(Int, Int)] -> (Int, Int) -> (Int, Int)
+substitute [] vt = vt
+substitute ((var, val) : rest) vt@(vars, target)
+  | vars .&. (1 `shiftL` var) > 0 = substitute rest (vars - (1 `shiftL` var), target - val)
+  | otherwise = substitute rest vt
+
+-- Minimize the sum of the variables subject to the constraints.
+minimizeSystem :: (Int, [(Int, Int)]) -> Int
+minimizeSystem (0, _) = 0 -- nothing left to solve
+minimizeSystem (remainingBits, eqs) =
+  trace
+    ("remainingBits: " ++ show remainingBits ++ " eqs=" ++ show eqs)
+    target
+    + bestOfRest
+  where
+    chosenEq@(eq, target) = minUsing (popCount . fst) eqs
+    bits = trace ("  chosenEq=" ++ show chosenEq) toBits eq
+    candidates = map (zip bits) $ waysToSum target (length bits)
+    otherEqs = filter (chosenEq /=) eqs
+    bestOfRest =
+      minimum
+        [ minimizeSystem (remainingBits - eq, map (substitute candidate) otherEqs)
+          | candidate <- candidates
+        ]
+
 main :: IO ()
 main = do
   args <- getArgs
   let inputFile = head args
   content <- readFile inputFile
   let machines = map parseLine $ lines content
+      machine = head machines
+      eqs = machineToEq machine
   -- print $ map (\m -> (length $ targetStr m, length $ buttons m)) machines
-  print machines
-  print $ map machineToEq machines
+  print machine
+  print eqs
+  print $ minimizeSystem eqs
 
 -- part1 = sum $ map ((fst . fromJust) . solveMachine) machines
 -- print part1
