@@ -6,6 +6,7 @@ import Data.List.Split
 import Data.Map.Strict qualified as M
 import Debug.Trace
 import System.Environment (getArgs)
+import System.IO
 
 data Machine = Machine
   { target :: Int,
@@ -57,10 +58,6 @@ waysToSum 0 n = [replicate n 0]
 waysToSum _ 0 = []
 waysToSum s n = concat [map (a :) $ waysToSum (s - a) (n - 1) | a <- [0 .. s]]
 
-largestBit :: Int -> Int
-largestBit 1 = 0
-largestBit n = 1 + largestBit (n `div` 2)
-
 toBits :: Int -> [Int]
 toBits 0 = []
 toBits n = go 0 n
@@ -74,24 +71,38 @@ substitute ((var, val) : rest) vt@(vars, target)
   | vars .&. (1 `shiftL` var) > 0 = substitute rest (vars - (1 `shiftL` var), target - val)
   | otherwise = substitute rest vt
 
+isValidEq :: (Int, Int) -> Bool
+isValidEq (0, 0) = True
+isValidEq (0, _) = False
+isValidEq (_, v) = v >= 0
+
 -- Minimize the sum of the variables subject to the constraints.
 minimizeSystem :: (Int, [(Int, Int)]) -> Int
 minimizeSystem (0, _) = 0 -- nothing left to solve
 minimizeSystem (remainingBits, eqs) =
-  trace
-    ("remainingBits: " ++ show remainingBits ++ " eqs=" ++ show eqs)
-    target
-    + bestOfRest
+  target
+    + bestOfRest -- trace ("remainingBits: " ++ show remainingBits ++ " eqs=" ++ show eqs)
   where
     chosenEq@(eq, target) = minUsing (popCount . fst) eqs
-    bits = trace ("  chosenEq=" ++ show chosenEq) toBits eq
+    bits = toBits eq -- trace ("  chosenEq=" ++ show chosenEq)
     candidates = map (zip bits) $ waysToSum target (length bits)
     otherEqs = filter (chosenEq /=) eqs
+    filteredCandidates =
+      [ (remainingBits - eq, remainingEqs)
+        | candidate <- candidates,
+          remainingEqs <- [map (substitute candidate) otherEqs],
+          all isValidEq remainingEqs
+      ]
     bestOfRest =
-      minimum
-        [ minimizeSystem (remainingBits - eq, map (substitute candidate) otherEqs)
-          | candidate <- candidates
-        ]
+      if null filteredCandidates
+        then 100000 -- some big number
+        else
+          minimum $ map minimizeSystem filteredCandidates
+
+-- need to filter out invalid solutions, with target < 0
+
+solveMachine2 :: Machine -> Int
+solveMachine2 m = minimizeSystem $ machineToEq m
 
 main :: IO ()
 main = do
@@ -99,17 +110,18 @@ main = do
   let inputFile = head args
   content <- readFile inputFile
   let machines = map parseLine $ lines content
-      machine = head machines
-      eqs = machineToEq machine
+  -- machine = head machines
+  -- eqs = machineToEq machine
   -- print $ map (\m -> (length $ targetStr m, length $ buttons m)) machines
-  print machine
-  print eqs
-  print $ minimizeSystem eqs
+  -- print machine
+  -- print eqs
+  -- print $ minimizeSystem eqs
 
--- part1 = sum $ map ((fst . fromJust) . solveMachine) machines
--- print part1
--- print machines
--- let solns = zip [0 :: Int ..] $ map (fromJust . solveMachine2) machines
--- mapM_ (\x -> print x >> hFlush stdout) solns
+  -- part1 = sum $ map ((fst . fromJust) . solveMachine) machines
+  -- print part1
+  -- print machines
+  let solns = zip [0 :: Int ..] $ map solveMachine2 machines
+  mapM_ (\x -> print x >> hFlush stdout) solns
+
 -- let part2 = sum $ map (fst . snd) solns
 -- print part2
