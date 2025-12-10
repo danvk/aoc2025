@@ -12,6 +12,7 @@ import System.IO
 
 data Machine = Machine
   { target :: Int,
+    targetStr :: String,
     buttons :: [Int],
     buttonsMap :: [M.Map Int Int],
     joltages :: M.Map Int Int
@@ -33,6 +34,7 @@ parseLine str = case words (eraseChars "[](){}" str) of
     let buttons = map parseButton $ init rest
      in Machine
           { target = parseDiagram target,
+            targetStr = target,
             buttons = map (foldr (\b acc -> acc + 2 ^ b) 0) buttons,
             buttonsMap = map (M.fromList . map (,1)) buttons,
             joltages = M.fromList $ zip [0 ..] (map (loudRead @Int) $ splitOn "," $ last rest)
@@ -81,10 +83,12 @@ main = do
   let inputFile = head args
   content <- readFile inputFile
   let machines = map parseLine $ lines content
-  -- part1 = sum $ map ((fst . fromJust) . solveMachine) machines
-  -- print part1
-  -- print machines
-  let solns = zip [0 :: Int ..] $ map (fromJust . solveMachine2) machines
-  mapM_ (\x -> print x >> hFlush stdout) solns
-  let part2 = sum $ map (fst . snd) solns
-  print part2
+  print $ map (\m -> (length $ targetStr m, length $ buttons m)) machines
+
+-- part1 = sum $ map ((fst . fromJust) . solveMachine) machines
+-- print part1
+-- print machines
+-- let solns = zip [0 :: Int ..] $ map (fromJust . solveMachine2) machines
+-- mapM_ (\x -> print x >> hFlush stdout) solns
+-- let part2 = sum $ map (fst . snd) solns
+-- print part2
