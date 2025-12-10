@@ -127,6 +127,7 @@ main = do
   -- print machines
   let solns = zip [0 :: Int ..] $ map solveMachine2 machines
   mapM_ (\x -> print x >> hFlush stdout) solns
+  print $ sum (map snd solns)
 
 -- let part2 = sum $ map (fst . snd) solns
 -- print part2
