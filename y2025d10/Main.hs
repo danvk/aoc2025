@@ -101,8 +101,13 @@ minimizeSystem (remainingBits, eqs) =
 
 -- need to filter out invalid solutions, with target < 0
 
+augment :: [(Int, Int)] -> [(Int, Int)]
+augment eqs = eqs ++ [(vb - va, tb - ta) | (va, ta) <- eqs, (vb, tb) <- eqs, tb > ta && va .&. vb == va]
+
 solveMachine2 :: Machine -> Int
-solveMachine2 m = minimizeSystem $ machineToEq m
+solveMachine2 m = minimizeSystem (rbs, augment eqs)
+  where
+    (rbs, eqs) = machineToEq m
 
 main :: IO ()
 main = do
