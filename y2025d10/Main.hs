@@ -1,6 +1,8 @@
 -- https://adventofcode.com/2025/day/10
 
 import AocLib
+import Data.Foldable (maximumBy)
+import Data.Function
 import Data.List.Split
 import System.Environment (getArgs)
 
@@ -33,5 +35,9 @@ main = do
   args <- getArgs
   let inputFile = head args
   content <- readFile inputFile
-  let x = map parseLine $ lines content
-  print x
+  let machines = map parseLine $ lines content
+      biggestTarget = maximumBy (compare `on` target) machines
+      mostButtons = maximumBy (compare `on` (length . buttons)) machines
+  print machines
+  print biggestTarget
+  print mostButtons
