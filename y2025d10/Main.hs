@@ -4,11 +4,19 @@ import AocLib
 import Data.Bits
 import Data.Heap qualified
 import Data.List.Split
+import Data.Map.Strict qualified as M
 import Data.Maybe
 import Data.Set qualified as S
 import System.Environment (getArgs)
+import System.IO
 
-data Machine = Machine {target :: Int, buttons :: [Int], joltages :: [Int]} deriving (Show, Eq)
+data Machine = Machine
+  { target :: Int,
+    buttons :: [Int],
+    buttonsMap :: [M.Map Int Int],
+    joltages :: M.Map Int Int
+  }
+  deriving (Show, Eq)
 
 parseDiagram :: String -> Int
 parseDiagram [] = 0
@@ -16,20 +24,19 @@ parseDiagram ('.' : xs) = 2 * parseDiagram xs
 parseDiagram ('#' : xs) = 1 + 2 * parseDiagram xs
 parseDiagram s = error $ "Invalid wiring diagram: " ++ s
 
-parseButton :: String -> Int
-parseButton s = go (splitOn "," s)
-  where
-    go [] = 0
-    go (x : xs) = 2 ^ loudRead @Int x + go xs
+parseButton :: String -> [Int]
+parseButton s = map loudRead (splitOn "," s)
 
 parseLine :: String -> Machine
 parseLine str = case words (eraseChars "[](){}" str) of
   (target : rest) ->
-    Machine
-      { target = parseDiagram target,
-        buttons = map parseButton $ init rest,
-        joltages = map (loudRead @Int) $ splitOn "," $ last rest
-      }
+    let buttons = map parseButton $ init rest
+     in Machine
+          { target = parseDiagram target,
+            buttons = map (foldr (\b acc -> acc + 2 ^ b) 0) buttons,
+            buttonsMap = map (M.fromList . map (,1)) buttons,
+            joltages = M.fromList $ zip [0 ..] (map (loudRead @Int) $ splitOn "," $ last rest)
+          }
   _ -> error $ "Unable to parse " ++ str
 
 -- pressButton :: Int -> Int -> Int
@@ -60,11 +67,24 @@ stepD stepFn = fn
 solveMachine :: Machine -> Maybe (Int, Int)
 solveMachine m = bfs (stepD (step m)) fst (\(_, s) -> s == target m) [(0, 0)]
 
+type State2 = M.Map Int Int
+
+step2 :: Machine -> State2 -> [State2]
+step2 m s = map (M.unionWith (+) s) (buttonsMap m)
+
+solveMachine2 :: Machine -> Maybe (Int, State2)
+solveMachine2 m = bfs (stepD (step2 m)) fst (\(_, s) -> s == joltages m) [(0, M.empty)]
+
 main :: IO ()
 main = do
   args <- getArgs
   let inputFile = head args
   content <- readFile inputFile
   let machines = map parseLine $ lines content
-      part1 = sum $ map ((fst . fromJust) . solveMachine) machines
-  print part1
+  -- part1 = sum $ map ((fst . fromJust) . solveMachine) machines
+  -- print part1
+  -- print machines
+  let solns = zip [0 :: Int ..] $ map (fromJust . solveMachine2) machines
+  mapM_ (\x -> print x >> hFlush stdout) solns
+  let part2 = sum $ map (fst . snd) solns
+  print part2
