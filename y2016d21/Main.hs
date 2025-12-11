@@ -45,6 +45,13 @@ applyOp s (RotateLeft r) = back ++ front
 applyOp s (RotateRight r) = back ++ front
   where
     (front, back) = splitAt (length s - r) s
+applyOp s (Reverse a b)
+  | a < b =
+      let (first, rest) = splitAt a s
+          (middle, end) = splitAt (b - a + 1) rest
+       in first ++ reverse middle ++ end
+  | a > b = applyOp s (Reverse b a)
+  | otherwise = s
 
 main :: IO ()
 main = do
