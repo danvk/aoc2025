@@ -41,10 +41,10 @@ applyOp s (SwapLet a b) = applyOp s (SwapPos pa pb)
     pb = fromJust $ b `elemIndex` s
 applyOp s (RotateLeft r) = back ++ front
   where
-    (front, back) = splitAt r s
+    (front, back) = splitAt (r `mod` length s) s
 applyOp s (RotateRight r) = back ++ front
   where
-    (front, back) = splitAt (length s - r) s
+    (front, back) = splitAt (length s - (r `mod` length s)) s
 applyOp s (Reverse a b)
   | a < b =
       let (first, rest) = splitAt a s
@@ -66,6 +66,10 @@ applyOp s (Move a b)
           (letA : end) = restA
        in first ++ [s !! a] ++ [s !! b] ++ middle ++ end
   | otherwise = s
+applyOp s (RotatePos c) = applyOp s (RotateRight n)
+  where
+    n = 1 + idx + (if idx >= 4 then 1 else 0)
+    idx = fromJust $ c `elemIndex` s
 
 main :: IO ()
 main = do
