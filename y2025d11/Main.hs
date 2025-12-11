@@ -5,18 +5,16 @@ import Data.Map.Strict qualified as M
 import Data.Set qualified as S
 import System.Environment (getArgs)
 
-toposort :: (Ord a) => (a -> [a]) -> [a] -> [a]
-toposort neighborFn nodes = fst $ foldr foldFn ([], S.empty) nodes
+toposort :: (Ord a) => (a -> [a]) -> a -> [a]
+toposort neighborFn start = fst $ dfs start S.empty []
   where
-    dfs [] visited = ([], visited)
-    dfs (x : xs) visited =
-      if x `S.member` visited
-        then
-          dfs xs visited
-        else
-          let (nstack, nvisited) = dfs (neighborFn x ++ xs) (S.insert x visited)
-           in (x : nstack, nvisited)
-    foldFn n (stack, visited) = let (nstack, nvisited) = dfs [n] visited in (nstack ++ stack, nvisited)
+    dfs node visited stack
+      | node `S.member` visited = (stack, visited)
+      | otherwise =
+          let newVis = S.insert node visited
+              (newStack, finalVis) = foldl processNeighbor (stack, newVis) (neighborFn node)
+           in (node : newStack, finalVis)
+    processNeighbor (st, vis) neighbor = dfs neighbor vis st
 
 parseLine :: String -> (String, [String])
 parseLine str = case words (eraseChars ":" str) of
@@ -37,14 +35,13 @@ main :: IO ()
 main = do
   args <- getArgs
   let inputFile = head args
-      sortedNodesFile = args !! 1
   content <- readFile inputFile
-  content2 <- readFile sortedNodesFile
   let edges = map parseLine $ lines content
-      sortedNodes = lines content2
+      sortedNodes = toposort (\n -> M.findWithDefault [] n g) "svr"
       g = M.fromList edges
       part1 = getCounts g sortedNodes "you" M.! "out"
   print part1
+  -- print sortedNodes
 
   let svrCounts = getCounts g sortedNodes "svr"
       fftCounts = getCounts g sortedNodes "fft"
