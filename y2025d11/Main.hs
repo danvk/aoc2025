@@ -49,7 +49,7 @@ main = do
       g = M.fromList edges
       descendents = M.fromList $ map (\k -> (k, floodFill (\n -> M.findWithDefault [] n g) [k])) nodes
       sortedNodes = sortBy (nodeOrder descendents) nodes
-      part1 = getCounts g sortedNodes "you" M.! "out"
+      part1 = getCounts g sortedNodes "you" M.! "bpl"
   print part1
 
 -- print sortedNodes
