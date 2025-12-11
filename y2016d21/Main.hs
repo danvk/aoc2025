@@ -19,8 +19,8 @@ parseLine str = case words str of
   ["swap", "position", p1, "with", "position", p2] -> SwapPos (read p1) (read p2)
   ["swap", "letter", [a], "with", "letter", [b]] -> SwapLet a b
   ["reverse", "positions", p1, "through", p2] -> Reverse (read p1) (read p2)
-  ["rotate", "right", n, _] -> RotateLeft (read n)
-  ["rotate", "left", n, _] -> RotateRight (read n)
+  ["rotate", "left", n, _] -> RotateLeft (read n)
+  ["rotate", "right", n, _] -> RotateRight (read n)
   ["rotate", "based", "on", "position", "of", "letter", [c]] -> RotatePos c
   ["move", "position", p1, "to", "position", p2] -> Move (read p1) (read p2)
   _ -> error $ "Unable to parse " ++ str
@@ -75,6 +75,8 @@ main :: IO ()
 main = do
   args <- getArgs
   let inputFile = head args
+      pass0 = args !! 1
   content <- readFile inputFile
-  let x = map parseLine $ lines content
-  print x
+  let ops = map parseLine $ lines content
+      part1 = foldl applyOp pass0 ops
+  print part1
