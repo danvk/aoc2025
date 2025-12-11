@@ -1,4 +1,7 @@
 -- https://adventofcode.com/2016/day/21
+
+import Data.List
+import Data.Maybe
 import System.Environment (getArgs)
 
 data Op
@@ -31,6 +34,10 @@ applyOp s (SwapPos a b)
        in first ++ [s !! b] ++ middle ++ [s !! a] ++ end
   | a > b = applyOp s (SwapPos b a)
   | otherwise = s
+applyOp s (SwapLet a b) = applyOp s (SwapPos pa pb)
+  where
+    pa = fromJust $ a `elemIndex` s
+    pb = fromJust $ b `elemIndex` s
 
 main :: IO ()
 main = do
