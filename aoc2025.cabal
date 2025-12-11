@@ -285,3 +285,8 @@ executable y2025d11
     import: warnings, common-extensions
     main-is: y2025d11/Main.hs
     build-depends: lib, heap
+
+executable y2016d22
+    import: warnings, common-extensions
+    main-is: y2016d22/Main.hs
+    build-depends: lib
