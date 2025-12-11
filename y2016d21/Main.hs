@@ -12,6 +12,7 @@ data Op
   | RotatePos Char
   | Reverse Int Int
   | Move Int Int
+  | InverseRotatePos Char
   deriving (Eq, Show)
 
 parseLine :: String -> Op
@@ -70,13 +71,30 @@ applyOp s (RotatePos c) = applyOp s (RotateRight n)
   where
     n = 1 + idx + (if idx >= 4 then 1 else 0)
     idx = fromJust $ c `elemIndex` s
+applyOp s (InverseRotatePos c) = fromJust $ find (\r -> applyOp r (RotatePos c) == s) rotations
+  where
+    rotations = map (applyOp s . RotateLeft) [0 .. (length s - 1)]
+
+invertOp :: Op -> Op
+invertOp op@(SwapPos _ _) = op
+invertOp op@(SwapLet _ _) = op
+invertOp op@(Reverse _ _) = op
+invertOp (RotateLeft r) = RotateRight r
+invertOp (RotateRight r) = RotateLeft r
+invertOp (Move a b) = Move b a
+invertOp (RotatePos c) = InverseRotatePos c
+invertOp (InverseRotatePos c) = RotatePos c
 
 main :: IO ()
 main = do
   args <- getArgs
   let inputFile = head args
-      pass0 = args !! 1
+      pass1 = args !! 1
+      pass2 = args !! 2
   content <- readFile inputFile
   let ops = map parseLine $ lines content
-      part1 = foldl applyOp pass0 ops
+      part1 = foldl applyOp pass1 ops
+      inverseOps = map invertOp ops
+      part2 = foldr (flip applyOp) pass2 inverseOps
   print part1
+  print part2
