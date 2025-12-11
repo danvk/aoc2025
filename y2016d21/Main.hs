@@ -21,6 +21,17 @@ parseLine str = case words str of
   ["move", "position", p1, "to", "position", p2] -> Move (read p1) (read p2)
   _ -> error $ "Unable to parse " ++ str
 
+applyOp :: String -> Op -> String
+applyOp s (SwapPos a b)
+  | a < b =
+      let (first, rest) = splitAt a s
+          (letA : restA) = rest
+          (middle, restB) = splitAt (b - a - 1) restA
+          (letB : end) = restB
+       in first ++ [s !! b] ++ middle ++ [s !! a] ++ end
+  | a > b = applyOp s (SwapPos b a)
+  | otherwise = s
+
 main :: IO ()
 main = do
   args <- getArgs
