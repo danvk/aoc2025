@@ -52,6 +52,20 @@ applyOp s (Reverse a b)
        in first ++ reverse middle ++ end
   | a > b = applyOp s (Reverse b a)
   | otherwise = s
+applyOp s (Move a b)
+  | a < b =
+      let (first, rest) = splitAt a s
+          (letA : restA) = rest
+          (middle, restB) = splitAt (b - a - 1) restA
+          (letB : end) = restB
+       in first ++ middle ++ [s !! b] ++ [s !! a] ++ end
+  | a > b =
+      let (first, rest) = splitAt b s
+          (letB : restB) = rest
+          (middle, restA) = splitAt (a - b - 1) restB
+          (letA : end) = restA
+       in first ++ [s !! a] ++ [s !! b] ++ middle ++ end
+  | otherwise = s
 
 main :: IO ()
 main = do
