@@ -280,3 +280,8 @@ executable y2025d10
     import: warnings, common-extensions
     main-is: y2025d10/Main.hs
     build-depends: lib, heap
+
+executable y2025d11
+    import: warnings, common-extensions
+    main-is: y2025d11/Main.hs
+    build-depends: lib, heap
