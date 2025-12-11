@@ -1,7 +1,6 @@
 -- https://adventofcode.com/2025/day/11
 
 import AocLib
-import Data.Heap qualified
 import Data.List
 import Data.Map.Strict qualified as M
 import Data.Set qualified as S
@@ -12,14 +11,14 @@ parseLine str = case words (eraseChars ":" str) of
   input : outputs -> (input, outputs)
   _ -> error $ "Unable to parse " ++ str
 
-getCounts :: [(String, [String])] -> String -> M.Map String Int
-getCounts edges start = go edgesFromStart (M.fromList [(start, 1)])
+getCounts :: M.Map String [String] -> [String] -> String -> M.Map String Int
+getCounts g nodes start = go nodes (M.fromList [(start, 1)])
   where
-    edgesFromStart = dropWhile (\(n, _) -> n /= start) edges
     go [] m = m
-    go ((n, outs) : xs) m = go xs (M.unionWith (+) m nextCounts)
+    go (n : ns) m = go ns (M.unionWith (+) m nextCounts)
       where
         meCount = M.findWithDefault 0 n m
+        outs = M.findWithDefault [] n g
         nextCounts = M.fromList $ map (,meCount) outs
 
 floodFill :: (Ord a) => (a -> [a]) -> [a] -> [a]
@@ -50,11 +49,13 @@ main = do
       g = M.fromList edges
       descendents = M.fromList $ map (\k -> (k, floodFill (\n -> M.findWithDefault [] n g) [k])) nodes
       sortedNodes = sortBy (nodeOrder descendents) nodes
+      part1 = getCounts g sortedNodes "you" M.! "out"
+  print part1
 
-  print sortedNodes
+-- print sortedNodes
 
 -- part1 = getCounts edges "you" M.! "out"
--- print part1
+
 -- let svrCounts = getCounts edges "svr"
 --     fftCounts = getCounts edges "fft"
 --     dacCounts = getCounts edges "dac"
