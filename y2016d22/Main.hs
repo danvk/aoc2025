@@ -1,4 +1,5 @@
 -- https://adventofcode.com/2016/day/22
+{-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
 
 import AocLib
 import Data.List.Split
@@ -28,10 +29,14 @@ parseLine str = case words (eraseChars "%T" str) of
           }
   _ -> error $ "Unable to parse " ++ str
 
+isViable :: Disk -> Disk -> Bool
+isViable a b = (used a /= 0) && (a /= b) && (used a <= avail b)
+
 main :: IO ()
 main = do
   args <- getArgs
   let inputFile = head args
   content <- readFile inputFile
-  let x = map parseLine $ drop 2 $ lines content
-  print x
+  let disks = map parseLine $ drop 2 $ lines content
+      part1 = length [() | a <- disks, b <- disks, isViable a b]
+  print part1
