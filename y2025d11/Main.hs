@@ -21,36 +21,39 @@ getCounts g nodes start = go nodes (M.fromList [(start, 1)])
         outs = M.findWithDefault [] n g
         nextCounts = M.fromList $ map (,meCount) outs
 
-floodFill :: (Ord a) => (a -> [a]) -> [a] -> [a]
-floodFill neighborFn starts = tail $ go starts S.empty
+toposort :: (Ord a) => (a -> [a]) -> [a] -> [a]
+toposort neighborFn nodes = fst $ foldr foldFn ([], S.empty) nodes
   where
-    go [] _ = []
-    go (x : xs) visited =
+    dfs [] visited = ([], visited)
+    dfs (x : xs) visited =
       if x `S.member` visited
         then
-          go xs visited
+          dfs xs visited
         else
-          x : go (neighborFn x ++ xs) (S.insert x visited)
-
-nodeOrder :: M.Map String [String] -> String -> String -> Ordering
-nodeOrder descendents a b = case (b `elem` (descendents M.! a), a `elem` (descendents M.! b)) of
-  (True, True) -> error $ "Graph has cycle " ++ a ++ " <-> " ++ b
-  (True, False) -> LT
-  (False, True) -> GT
-  (False, False) -> EQ
+          let (nstack, nvisited) = dfs (neighborFn x ++ xs) (S.insert x visited)
+           in (x : nstack, nvisited)
+    foldFn n (stack, visited) = let (nstack, nvisited) = dfs [n] visited in (nstack ++ stack, nvisited)
 
 main :: IO ()
 main = do
   args <- getArgs
   let inputFile = head args
+      sortedNodesFile = args !! 1
   content <- readFile inputFile
+  content2 <- readFile sortedNodesFile
   let edges = map parseLine $ lines content
-      nodes = nub $ concatMap (uncurry (:)) edges
+      sortedNodes = lines content2
+      -- nodes = nub $ concatMap (uncurry (:)) edges
       g = M.fromList edges
-      descendents = M.fromList $ map (\k -> (k, floodFill (\n -> M.findWithDefault [] n g) [k])) nodes
-      sortedNodes = sortBy (nodeOrder descendents) nodes
-      part1 = getCounts g sortedNodes "you" M.! "bpl"
+      part1 = getCounts g sortedNodes "you" M.! "out"
   print part1
+
+-- putStrLn $ intercalate "\n" $ toposort (\n -> M.findWithDefault [] n g) nodes
+
+-- descendents = M.fromList $ map (\k -> (k, floodFill (\n -> M.findWithDefault [] n g) [k])) nodes
+-- sortedNodes = sortBy (nodeOrder descendents) nodes
+
+-- putStrLn $ intercalate "\n" sortedNodes
 
 -- print sortedNodes
 
