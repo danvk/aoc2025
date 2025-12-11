@@ -25,11 +25,14 @@ bfs stepFn weight done starts = go initHeap
 step :: M.Map String [String] -> [String] -> [[String]]
 step m path = map (: path) $ M.findWithDefault [] (head path) m
 
+part1 :: M.Map String [String] -> String -> String -> Int
+part1 g start stop = length $ bfs (step g) length (\x -> head x == stop) [[start]]
+
 main :: IO ()
 main = do
   args <- getArgs
   let inputFile = head args
   content <- readFile inputFile
   let g = M.fromList $ map parseLine $ lines content
-      solns = bfs (step g) length (\x -> head x == "out") [["you"]]
-  print $ length solns
+  print $ part1 g "you" "out"
+  print $ part1 g "svr" "fft"
