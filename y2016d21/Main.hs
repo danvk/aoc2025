@@ -7,7 +7,8 @@ import System.Environment (getArgs)
 data Op
   = SwapPos Int Int
   | SwapLet Char Char
-  | Rotate Int
+  | RotateLeft Int
+  | RotateRight Int
   | RotatePos Char
   | Reverse Int Int
   | Move Int Int
@@ -18,8 +19,8 @@ parseLine str = case words str of
   ["swap", "position", p1, "with", "position", p2] -> SwapPos (read p1) (read p2)
   ["swap", "letter", [a], "with", "letter", [b]] -> SwapLet a b
   ["reverse", "positions", p1, "through", p2] -> Reverse (read p1) (read p2)
-  ["rotate", "right", n, _] -> Rotate (read n)
-  ["rotate", "left", n, _] -> Rotate (-read n)
+  ["rotate", "right", n, _] -> RotateLeft (read n)
+  ["rotate", "left", n, _] -> RotateRight (read n)
   ["rotate", "based", "on", "position", "of", "letter", [c]] -> RotatePos c
   ["move", "position", p1, "to", "position", p2] -> Move (read p1) (read p2)
   _ -> error $ "Unable to parse " ++ str
@@ -38,6 +39,12 @@ applyOp s (SwapLet a b) = applyOp s (SwapPos pa pb)
   where
     pa = fromJust $ a `elemIndex` s
     pb = fromJust $ b `elemIndex` s
+applyOp s (RotateLeft r) = back ++ front
+  where
+    (front, back) = splitAt r s
+applyOp s (RotateRight r) = back ++ front
+  where
+    (front, back) = splitAt (length s - r) s
 
 main :: IO ()
 main = do
