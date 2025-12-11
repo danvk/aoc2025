@@ -84,6 +84,6 @@ main = do
   let inputFile = head args
   content <- readFile inputFile
   let instrs = map parseLine $ lines content
-      initState = (0, M.fromList [('a', 7), ('b', 0), ('c', 0), ('d', 0)], instrs)
+      initState = (0, M.fromList [('a', 12), ('b', 0), ('c', 0), ('d', 0)], instrs)
       part1 = snd3 $ last $ iterateToNone step initState
   print part1
