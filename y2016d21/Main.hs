@@ -1,9 +1,24 @@
 -- https://adventofcode.com/2016/day/21
 import System.Environment (getArgs)
 
-parseLine :: String -> [String]
+data Op
+  = SwapPos Int Int
+  | SwapLet Char Char
+  | Rotate Int
+  | RotatePos Char
+  | Reverse Int Int
+  | Move Int Int
+  deriving (Eq, Show)
+
+parseLine :: String -> Op
 parseLine str = case words str of
-  word:rest -> word:rest
+  ["swap", "position", p1, "with", "position", p2] -> SwapPos (read p1) (read p2)
+  ["swap", "letter", [a], "with", "letter", [b]] -> SwapLet a b
+  ["reverse", "positions", p1, "through", p2] -> Reverse (read p1) (read p2)
+  ["rotate", "right", n, _] -> Rotate (read n)
+  ["rotate", "left", n, _] -> Rotate (-read n)
+  ["rotate", "based", "on", "position", "of", "letter", [c]] -> RotatePos c
+  ["move", "position", p1, "to", "position", p2] -> Move (read p1) (read p2)
   _ -> error $ "Unable to parse " ++ str
 
 main :: IO ()
