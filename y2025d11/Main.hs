@@ -48,32 +48,32 @@ main = do
       part1 = getCounts g sortedNodes "you" M.! "out"
   print part1
 
--- putStrLn $ intercalate "\n" $ toposort (\n -> M.findWithDefault [] n g) nodes
+  -- putStrLn $ intercalate "\n" $ toposort (\n -> M.findWithDefault [] n g) nodes
 
--- descendents = M.fromList $ map (\k -> (k, floodFill (\n -> M.findWithDefault [] n g) [k])) nodes
--- sortedNodes = sortBy (nodeOrder descendents) nodes
+  -- descendents = M.fromList $ map (\k -> (k, floodFill (\n -> M.findWithDefault [] n g) [k])) nodes
+  -- sortedNodes = sortBy (nodeOrder descendents) nodes
 
--- putStrLn $ intercalate "\n" sortedNodes
+  -- putStrLn $ intercalate "\n" sortedNodes
 
--- print sortedNodes
+  -- print sortedNodes
 
--- part1 = getCounts edges "you" M.! "out"
+  -- part1 = getCounts edges "you" M.! "out"
 
--- let svrCounts = getCounts edges "svr"
---     fftCounts = getCounts edges "fft"
---     dacCounts = getCounts edges "dac"
---     svrFft = M.findWithDefault 0 "fft" svrCounts
---     svrDac = M.findWithDefault 0 "dac" svrCounts
---     fftDac = M.findWithDefault 0 "dac" fftCounts
---     dacFft = M.findWithDefault 0 "fft" dacCounts
---     dacOut = M.findWithDefault 0 "out" dacCounts
---     fftOut = M.findWithDefault 0 "out" fftCounts
---     part2 = svrFft * fftDac * dacOut + svrDac * dacFft * fftOut
--- -- print svrCounts
--- print svrFft
--- print svrDac
--- print fftDac
--- print dacFft
--- print dacOut
--- print fftOut
--- print part2
+  let svrCounts = getCounts g sortedNodes "svr"
+      fftCounts = getCounts g sortedNodes "fft"
+      dacCounts = getCounts g sortedNodes "dac"
+      svrFft = M.findWithDefault 0 "fft" svrCounts
+      svrDac = M.findWithDefault 0 "dac" svrCounts
+      fftDac = M.findWithDefault 0 "dac" fftCounts
+      dacFft = M.findWithDefault 0 "fft" dacCounts
+      dacOut = M.findWithDefault 0 "out" dacCounts
+      fftOut = M.findWithDefault 0 "out" fftCounts
+      part2 = svrFft * fftDac * dacOut + svrDac * dacFft * fftOut
+  -- print svrCounts
+  print svrFft
+  print svrDac
+  print fftDac
+  print dacFft
+  print dacOut
+  print fftOut
+  print part2
