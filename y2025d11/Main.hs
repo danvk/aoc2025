@@ -2,6 +2,7 @@
 
 import AocLib
 import Data.Heap qualified
+import Data.List
 import Data.Map.Strict qualified as M
 import Data.Set qualified as S
 import System.Environment (getArgs)
@@ -21,19 +22,23 @@ getCounts edges start = go edgesFromStart (M.fromList [(start, 1)])
         meCount = M.findWithDefault 0 n m
         nextCounts = M.fromList $ map (,meCount) outs
 
-getDistances :: (Ord a) => (a -> [a]) -> a -> [(Int, a)]
-getDistances stepFn start = go initHeap S.empty
+floodFill :: (Ord a) => (a -> [a]) -> [a] -> [a]
+floodFill neighborFn starts = tail $ go starts S.empty
   where
-    initList = [(0, start)]
-    initHeap = Data.Heap.fromList initList `asTypeOf` (undefined :: Data.Heap.MinPrioHeap Int a)
-    go h visited = case Data.Heap.view h of
-      Just (n@(d, val), rest) ->
-        if val `S.member` visited
-          then go rest visited
-          else
-            n : go (insertAll rest $ map (1 + d,) (stepFn val)) (S.insert val visited)
-      Nothing -> []
-    insertAll = foldr Data.Heap.insert
+    go [] _ = []
+    go (x : xs) visited =
+      if x `S.member` visited
+        then
+          go xs visited
+        else
+          x : go (neighborFn x ++ xs) (S.insert x visited)
+
+nodeOrder :: M.Map String [String] -> String -> String -> Ordering
+nodeOrder descendents a b = case (b `elem` (descendents M.! a), a `elem` (descendents M.! b)) of
+  (True, True) -> error $ "Graph has cycle " ++ a ++ " <-> " ++ b
+  (True, False) -> LT
+  (False, True) -> GT
+  (False, False) -> EQ
 
 main :: IO ()
 main = do
@@ -41,8 +46,12 @@ main = do
   let inputFile = head args
   content <- readFile inputFile
   let edges = map parseLine $ lines content
+      nodes = nub $ concatMap (uncurry (:)) edges
       g = M.fromList edges
-  print $ getDistances (\n -> M.findWithDefault [] n g) "svr"
+      descendents = M.fromList $ map (\k -> (k, floodFill (\n -> M.findWithDefault [] n g) [k])) nodes
+      sortedNodes = sortBy (nodeOrder descendents) nodes
+
+  print sortedNodes
 
 -- part1 = getCounts edges "you" M.! "out"
 -- print part1
