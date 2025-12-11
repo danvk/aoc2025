@@ -290,3 +290,8 @@ executable y2016d22
     import: warnings, common-extensions
     main-is: y2016d22/Main.hs
     build-depends: lib
+
+executable y2016d23
+    import: warnings, common-extensions
+    main-is: y2016d23/Main.hs
+    build-depends: lib
