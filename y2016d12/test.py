@@ -11,5 +11,9 @@ def run(b):
         a += 1
 
 
+def run2(b):
+    return (b // 2, 2 - b % 2)
+
+
 for b in range(0, 10):
-    print(f"{b=} (a,c)={run(b)}")
+    print(f"{b=} (a,c)={run(b)}={run2(b)}")

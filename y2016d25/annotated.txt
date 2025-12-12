@@ -5,16 +5,8 @@
 
 while true {
     b = a
-    a = 0
-  while true {
-    c = 2
-    do {
-      if b == 0: goto L20
-      b -= 1
-      c -= 1
-    } while (c != 0)
-    a += 1
-  }
+    a = b // 2
+    c = 2 - (b mod 2)
 L20 b = 2
 L21 if c != 0: goto L23 # jnz c 2
     goto L26  # jnz 1 4
