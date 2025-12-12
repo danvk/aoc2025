@@ -46,6 +46,9 @@ distanceForSeq ds nums = sum $ zipWith (curry (ds M.!)) nums (tail nums)
 part1 :: M.Map (Int, Int) Int -> Int -> Int
 part1 ds numPts = minimum $ map (distanceForSeq ds . (0 :)) (permutations [1 .. (numPts - 1)])
 
+part2 :: M.Map (Int, Int) Int -> Int -> Int
+part2 ds numPts = minimum $ map (\p -> distanceForSeq ds (0 : p ++ [0])) (permutations [1 .. (numPts - 1)])
+
 main :: IO ()
 main = do
   args <- getArgs
@@ -54,7 +57,7 @@ main = do
   let (_, g) = parseGrid content
       numPts = findNums g
       distances = pointPointDistance g numPts
-      p1 = part1 distances (length numPts)
-  print p1
+  print $ part1 distances (length numPts)
+  print $ part2 distances (length numPts)
 
 -- print $ distanceForSeq distances [0, 4, 1, 2, 3]
