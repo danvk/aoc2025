@@ -1,7 +1,10 @@
 -- https://adventofcode.com/2016/day/24
 
 import Data.Char (digitToInt)
+import Data.Heap qualified
 import Data.Map.Strict qualified as M
+import Data.Set qualified as S
+import Data.Tuple
 import GHC.Unicode
 import Grid
 import System.Environment (getArgs)
@@ -9,11 +12,38 @@ import System.Environment (getArgs)
 findNums :: Grid -> M.Map Int Point
 findNums g = M.fromList [(digitToInt c, (x, y)) | ((x, y), c) <- M.toList g, isDigit c]
 
+getDistances :: (Ord a) => (a -> [a]) -> a -> [(Int, a)]
+getDistances stepFn start = go initHeap S.empty
+  where
+    initList = [(0, start)]
+    initHeap = Data.Heap.fromList initList `asTypeOf` (undefined :: Data.Heap.MinPrioHeap Int a)
+    go h visited = case Data.Heap.view h of
+      Just (n@(d, val), rest) ->
+        if val `S.member` visited
+          then go rest visited
+          else
+            n : go (insertAll rest $ map (1 + d,) (stepFn val)) (S.insert val visited)
+      Nothing -> []
+    insertAll = foldr Data.Heap.insert
+
+step :: Grid -> Point -> [Point]
+step g pt = filter (\p -> charAtPoint g p /= '#') $ neighbors4 pt
+
+pointPointDistance :: Grid -> M.Map Int Point -> M.Map (Int, Int) Int
+pointPointDistance g numPts =
+  M.fromList
+    [ ((srcNum, dstNum), ds M.! dstPt)
+      | (srcNum, ds) <- distances,
+        (dstNum, dstPt) <- M.toList numPts
+    ]
+  where
+    distances = [(num, M.fromList $ map swap $ getDistances (step g) pt) | (num, pt) <- M.toList numPts]
+
 main :: IO ()
 main = do
   args <- getArgs
   let inputFile = head args
   content <- readFile inputFile
-  let (dims, g) = parseGrid content
-  print dims
-  print $ findNums g
+  let (_, g) = parseGrid content
+      numPts = findNums g
+  print $ pointPointDistance g numPts

@@ -299,7 +299,7 @@ executable y2016d23
 executable y2016d24
     import: warnings, common-extensions
     main-is: y2016d24/Main.hs
-    build-depends: lib
+    build-depends: lib, heap
 
 executable y2016d25
     import: warnings, common-extensions
