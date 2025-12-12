@@ -2,6 +2,7 @@
 
 import Data.Char (digitToInt)
 import Data.Heap qualified
+import Data.List
 import Data.Map.Strict qualified as M
 import Data.Set qualified as S
 import Data.Tuple
@@ -42,6 +43,9 @@ pointPointDistance g numPts =
 distanceForSeq :: M.Map (Int, Int) Int -> [Int] -> Int
 distanceForSeq ds nums = sum $ zipWith (curry (ds M.!)) nums (tail nums)
 
+part1 :: M.Map (Int, Int) Int -> Int -> Int
+part1 ds numPts = minimum $ map (distanceForSeq ds . (0 :)) (permutations [1 .. (numPts - 1)])
+
 main :: IO ()
 main = do
   args <- getArgs
@@ -50,4 +54,7 @@ main = do
   let (_, g) = parseGrid content
       numPts = findNums g
       distances = pointPointDistance g numPts
-  print $ distanceForSeq distances [0, 4, 1, 2, 3]
+      p1 = part1 distances (length numPts)
+  print p1
+
+-- print $ distanceForSeq distances [0, 4, 1, 2, 3]
