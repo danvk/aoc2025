@@ -42,11 +42,12 @@ type State = (Point, Point)
 
 -- can move the open pos in any direction
 -- if this would collide with the goal pos, swap them.
-step :: Size -> State -> [State]
-step (w, h) (goalPos, openPos) =
+step :: Size -> S.Set Point -> State -> [State]
+step (w, h) forbidden (goalPos, openPos) =
   [ if (x, y) /= goalPos then (goalPos, (x, y)) else (openPos, goalPos)
     | (x, y) <- neighbors4 openPos,
-      x >= 0 && x < w && y >= 0 && y < h
+      x >= 0 && x < w && y >= 0 && y < h,
+      (x, y) `notElem` forbidden
   ]
 
 stepD :: (a -> [a]) -> ((Int, a) -> [(Int, a)])
@@ -83,14 +84,16 @@ main = do
   let openPos = pos $ fromJust $ find (\d -> used d == 0) disks
       goalPos = maximum [pos d | d <- disks, (snd . pos) d == 0]
       (mx, my) = maximum $ map pos disks
+      fullPos = S.fromList [pos d | d <- disks, used d > 100]
       dims = (1 + mx, 1 + my)
       state0 = (goalPos, openPos)
-      part2 = bfs (stepD (step dims)) fst isDone [(0, state0)]
+      part2 = bfs (stepD (step dims fullPos)) fst isDone [(0, state0)]
   -- part2 = step dims state0
   -- part22 = step dims ((2, 0), (1, 0))
   -- print disks
   print dims
   print state0
+  print fullPos
   print part2
 
 -- print ((2, 0), (1, 0))
