@@ -1,15 +1,19 @@
 -- https://adventofcode.com/2016/day/24
+
+import Data.Char (digitToInt)
+import Data.Map.Strict qualified as M
+import GHC.Unicode
+import Grid
 import System.Environment (getArgs)
 
-parseLine :: String -> [String]
-parseLine str = case words str of
-  word:rest -> word:rest
-  _ -> error $ "Unable to parse " ++ str
+findNums :: Grid -> M.Map Int Point
+findNums g = M.fromList [(digitToInt c, (x, y)) | ((x, y), c) <- M.toList g, isDigit c]
 
 main :: IO ()
 main = do
   args <- getArgs
   let inputFile = head args
   content <- readFile inputFile
-  let x = map parseLine $ lines content
-  print x
+  let (dims, g) = parseGrid content
+  print dims
+  print $ findNums g
