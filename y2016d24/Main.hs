@@ -39,6 +39,9 @@ pointPointDistance g numPts =
   where
     distances = [(num, M.fromList $ map swap $ getDistances (step g) pt) | (num, pt) <- M.toList numPts]
 
+distanceForSeq :: M.Map (Int, Int) Int -> [Int] -> Int
+distanceForSeq ds nums = sum $ zipWith (curry (ds M.!)) nums (tail nums)
+
 main :: IO ()
 main = do
   args <- getArgs
@@ -46,4 +49,5 @@ main = do
   content <- readFile inputFile
   let (_, g) = parseGrid content
       numPts = findNums g
-  print $ pointPointDistance g numPts
+      distances = pointPointDistance g numPts
+  print $ distanceForSeq distances [0, 4, 1, 2, 3]
