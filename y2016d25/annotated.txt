@@ -1,0 +1,30 @@
+ L0 d = a
+ L1 c = 7
+ L2 b = 365
+ L3 d += 1
+ L4 b -= 1
+ L5 if b != 0: goto L3  # jnz b -2
+ L6 c -= 1
+ L7 if c != 0: goto L2  # jnz c -5
+ L8 a = d
+ L9 pass
+L10 b = a
+L11 a = 0
+L12 c = 2
+L13 if b != 0: goto L15  # jnz b 2
+L14 goto L20 # jnz 1 6
+L15 b -= 1
+L16 c -= 1
+L17 if c != 0: goto L13  # jnz c -4
+L18 a += 1
+L19 goto L12  # jnz 1 -7
+L20 b = 2
+L21 if c != 0: goto L23 # jnz c 2
+L22 goto L26  # jnz 1 4
+L23 b -= 1
+L24 c -= 1
+L25 goto L21  # jnz 1 -4
+L26 pass
+L27 out b
+L28 if a != 0: goto L9  # jnz a -19
+L29 goto L8  # jnz 1 -21
